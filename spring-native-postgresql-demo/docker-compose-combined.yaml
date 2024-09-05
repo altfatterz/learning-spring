@@ -1,0 +1,26 @@
+services:
+  app:
+    image: 'docker.io/library/spring-native-postgresql-demo:0.0.1-SNAPSHOT'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=secret
+    ports:
+      - '8080:8080'
+  db:
+    image: 'postgres:16'
+    ports:
+      - '5432'
+    environment:
+      - 'POSTGRES_DB=postgres'
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=secret'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 2s
+      timeout: 2s
+      retries: 3
+
