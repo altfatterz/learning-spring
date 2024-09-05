@@ -1,0 +1,25 @@
+spring:
+  application.name: spring-cloud-gateway-demo
+
+  cloud:
+    gateway:
+      routes:
+        - id: internal
+          uri: ${gateway.uri:http://localhost:8080}
+          predicates:
+            - Path=/service/backend/api/v3/get
+          filters:
+            - StripPrefix=2
+          order: 1
+        - id: default
+          uri: http://httpbin.org:80
+          predicates:
+            - Path=/service/backend/api/v3/**
+          filters:
+            - StripPrefix=4
+            - AddRequestHeader=X-Request-red, blue
+          order: 100
+
+
+logging.level:
+  org.springframework.cloud.gateway: DEBUG

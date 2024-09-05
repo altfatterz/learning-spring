@@ -1,0 +1,4 @@
+server:
+  port: 8081
+
+gateway.uri: http://localhost:8081
