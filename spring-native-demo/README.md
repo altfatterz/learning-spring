@@ -145,9 +145,10 @@ https://github.com/oracle/graalvm-reachability-metadata
 This repository enables users of GraalVM Native Image to share and reuse metadata for libraries and frameworks in the Java ecosystem.
 
 
-
+### AOT Compilation
 
 Resources:
 
 - Dan Vega: https://www.youtube.com/watch?v=FjRBHKUP-NA
 - Joris Kuipers: https://www.youtube.com/watch?v=HThlVyustWo&t=272s
+- Bootiful GraalVM by Josh Long & Alina Yurenko: https://www.youtube.com/watch?v=3OBhk1c0GBs

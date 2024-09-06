@@ -12,6 +12,7 @@
         <module>spring-cloud-gateway-demo</module>
         <module>spring-native-demo</module>
         <module>spring-native-postgresql-demo</module>
+        <module>hello-cli</module>
     </modules>
 
 </project>
