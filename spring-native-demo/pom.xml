@@ -56,6 +56,12 @@
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
+                <!-- Speed up GraalVM compilation a bit - don not use in production -->
+                <configuration>
+                    <buildArgs>
+                        <buildArg>-Ob</buildArg>
+                    </buildArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

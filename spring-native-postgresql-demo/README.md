@@ -1,7 +1,17 @@
-Compile locally (failure with Java 21)
+### Spring Native with PostgreSQL Demo
 
 ```bash
-$ sdk use java 23.0.5.r17-nik
+$ sdk install java 21.0.2-graalce
+$ sdk use java 21.0.2-graalce
+$ java -version
+openjdk version "21.0.2" 2024-01-16
+OpenJDK Runtime Environment GraalVM CE 21.0.2+13.1 (build 21.0.2+13-jvmci-23.1-b30)
+OpenJDK 64-Bit Server VM GraalVM CE 21.0.2+13.1 (build 21.0.2+13-jvmci-23.1-b30, mixed mode, sharing)
+```
+
+
+```bash
+$ sdk use java 21.0.2-graalce
 $ mvn -Pnative native:compile
 ```
 
@@ -21,7 +31,7 @@ $ psql -h localhost -p 52516 -U postgres
 
 ```bash
 $ ./target/spring-native-postgresql-demo \
-    --spring.datasource.url=jdbc:postgresql://localhost:52516/postgres \
+    --spring.datasource.url=jdbc:postgresql://localhost:57166/postgres \
     --spring.datasource.username=postgres \
     --spring.datasource.password=secret
 ```

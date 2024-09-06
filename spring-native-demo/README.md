@@ -1,47 +1,101 @@
+### Spring Native Demo
+
+More info: https://www.graalvm.org/22.2/reference-manual/graalvm-updater/
+
+Think of `GraalVM` as a JDK with two modes.
+- Just in time (JIT) compiling
+- Ahead of time (AOT) compiling
 
 
-```bash
-$ sdk install java 21.0.4-tem
-$ java -version
-openjdk version "21.0.4" 2024-07-16 LTS
-OpenJDK Runtime Environment Temurin-21.0.4+7 (build 21.0.4+7-LTS)
-OpenJDK 64-Bit Server VM Temurin-21.0.4+7 (build 21.0.4+7-LTS, mixed mode)
-```
+### Issue with native build:
+
+- reflection
+- resource loading
+- serialization
+- proxy creation
+
+Did not work with this one `23.1.4.r21-nik` I get ArrayIndexOutOfBoundsException see error.txt
 
 ```bash
 $ sdk install java 23.1.4.r21-nik
 $ sdk use java 23.1.4.r21-nik
 $ java -version
-
 openjdk version "21.0.4" 2024-07-16 LTS
 OpenJDK Runtime Environment Liberica-NIK-23.1.4-1 (build 21.0.4+9-LTS)
 OpenJDK 64-Bit Server VM Liberica-NIK-23.1.4-1 (build 21.0.4+9-LTS, mixed mode, sharing)
 ```
 
-### GraalVM Component Updater v2.0.0
+I could compile natively on Mac with this JDK `21.0.2-graalce`
 
 ```bash
-$ gu list
-
-ComponentId              Version             Component name                Stability                     Origin
-------------------------------------------------------------------------------------------------------------------------
-graalvm                  23.1.4              GraalVM Core                  Experimental
-native-image             23.1.4              Native Image                  Early adopter
+$ sdk install java 21.0.2-graalce
+$ sdk use java 21.0.2-graalce
+$ java -version
+openjdk version "21.0.2" 2024-01-16
+OpenJDK Runtime Environment GraalVM CE 21.0.2+13.1 (build 21.0.2+13-jvmci-23.1-b30)
+OpenJDK 64-Bit Server VM GraalVM CE 21.0.2+13.1 (build 21.0.2+13-jvmci-23.1-b30, mixed mode, sharing)
 ```
-
-More info: https://www.graalvm.org/22.2/reference-manual/graalvm-updater/
-
-Think of GraalVM as a JDK with two modes.
-- Just in time (JIT) compiling
-- Ahead of time (AOT) compiling
-
 
 ### Building a Native Image using Native Build Tools
 
 The following tries to build a native image but it fails on my machine (see error.txt)
 
 ```bash
-$ mvn -Pnative native:compile -DskipTests
+$ mvn -Pnative clean native:compile
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:59 min
+```
+
+- During build it downloads the `GraalVM` Reachability Metadata repository into the `target` folder.
+  https://github.com/oracle/graalvm-reachability-metadata
+
+- Run the native build
+
+```
+./target/spring-navtive-demo
+
+Starting AOT-processed SpringNativeDemoApplication using Java 21.0.2 with PID 17512
+...
+Started SpringNativeDemoApplication in 0.127 seconds (process running for 0.139)
+```
+
+- `Memory usage`:
+
+```bash
+$ vmmap 17512 | grep Physical
+Physical footprint:         43.5M
+Physical footprint (peak):  43.5M
+```
+
+- `Size on disk`
+
+```bash
+$ ls -lh target/spring-native-demo | awk '{ print $5; }'
+83M
+```
+- target/spring-aot
+
+Two generated files: `reflect-config.json` , `resource-config.json`
+
+Check the `reflect-config.json`: 
+
+```bash
+{
+    "name": "com.github.altfatterz.springnativedemo.Customer",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getFirstName",
+        "parameterTypes": [ ]
+      },
+      {
+        "name": "getLastName",
+        "parameterTypes": [ ]
+      }
+    ]
+  }
 ```
 
 ### Building a Native Image Using Buildpacks
@@ -82,10 +136,18 @@ $ http :8080/actuator/health
 ```
 
 
+### GraalVM Reachability Metadata
+
+https://www.graalvm.org/latest/reference-manual/native-image/metadata/
+
+https://github.com/oracle/graalvm-reachability-metadata
+
+This repository enables users of GraalVM Native Image to share and reuse metadata for libraries and frameworks in the Java ecosystem.
+
+
 
 
 Resources:
 
-- Getting started with Spring Boot AOT + GraalVM Native Images
-https://www.youtube.com/watch?v=FjRBHKUP-NA
-- 
+- Dan Vega: https://www.youtube.com/watch?v=FjRBHKUP-NA
+- Joris Kuipers: https://www.youtube.com/watch?v=HThlVyustWo&t=272s
