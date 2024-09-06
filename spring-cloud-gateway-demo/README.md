@@ -47,3 +47,13 @@ Server: gunicorn/19.9.0
     }
 }
 ```
+
+### Enable Native Build
+
+```bash
+$ ./build.sh
+./target/spring-cloud-gateway-demo
+
+Started SpringCloudGatewayDemoApplication in 0.17 seconds (process running for 0.182)
+```
+
