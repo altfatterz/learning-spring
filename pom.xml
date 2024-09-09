@@ -13,6 +13,7 @@
         <module>spring-native-demo</module>
         <module>spring-native-postgresql-demo</module>
         <module>hello-cli</module>
+        <module>vault-demo</module>
     </modules>
 
 </project>
