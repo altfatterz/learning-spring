@@ -14,6 +14,7 @@
         <module>spring-native-postgresql-demo</module>
         <module>hello-cli</module>
         <module>vault-demo</module>
+        <module>postgresql-r2dbc</module>
     </modules>
 
 </project>
