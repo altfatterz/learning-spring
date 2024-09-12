@@ -30,6 +30,10 @@ $ vault kv get -mount=secret vault-postgresql-r2dbc-demo
 $ vault kv delete -mount=secret vault-postgresql-r2dbc-demo 
 ```
 
+### Check the stored secrets in Vault UI
+
+http://localhost:8200
+
 ### Build the image
 
 ```bash
