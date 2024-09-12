@@ -1,0 +1,7 @@
+spring:
+  application.name: vault-demo
+  cloud.vault.token: 00000000-0000-0000-0000-000000000000
+  cloud.vault.scheme: http
+  cloud.vault.kv.enabled: true
+  config.import:
+    - vault://
