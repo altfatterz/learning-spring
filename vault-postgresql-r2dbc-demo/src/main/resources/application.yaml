@@ -1,0 +1,17 @@
+spring:
+  sql.init.mode: always
+
+  application.name: vault-postgresql-r2dbc-demo
+
+  config.import:
+    - vault://
+
+  cloud:
+    vault:
+      host: vault
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+
+logging:
+  level:
+    org.springframework: DEBUG
