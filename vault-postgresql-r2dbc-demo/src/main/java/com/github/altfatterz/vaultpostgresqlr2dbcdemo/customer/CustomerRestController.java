@@ -1,4 +1,4 @@
-package com.github.altfatterz.vaultpostgresqlr2dbcdemo;
+package com.github.altfatterz.vaultpostgresqlr2dbcdemo.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.web.bind.annotation.GetMapping;

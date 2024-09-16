@@ -1,4 +1,4 @@
-package com.github.altfatterz.vaultpostgresqlr2dbcdemo;
+package com.github.altfatterz.vaultpostgresqlr2dbcdemo.customer;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
