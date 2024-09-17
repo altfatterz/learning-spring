@@ -16,6 +16,7 @@
         <module>vault-demo</module>
         <module>postgresql-r2dbc</module>
         <module>vault-postgresql-r2dbc-demo</module>
+        <module>openid-connect-demo</module>
     </modules>
 
 </project>
