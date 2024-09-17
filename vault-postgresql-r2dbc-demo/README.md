@@ -119,3 +119,11 @@ db.username    postgres
 ```
 
 
+
+### Resources
+
+https://testcontainers.com/guides/simple-local-development-with-testcontainers-desktop/
+https://dev.to/breda/dynamic-postgresql-credentials-using-hashicorp-vault-with-php-symfony-go-examples-4imj
+https://www.baeldung.com/spring-dynamicpropertysource
+https://maciejwalkowiak.com/blog/testcontainers-spring-boot-setup/
+
