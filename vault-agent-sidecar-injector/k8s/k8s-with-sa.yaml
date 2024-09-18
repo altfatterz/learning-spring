@@ -12,6 +12,7 @@ spec:
       labels:
         app: vault-agent-sidecar-injector-demo
     spec:
+      serviceAccountName: vault-agent-sidecar-injector-demo-sa
       containers:
         - name: app
           image: vault-agent-sidecar-injector:0.0.1-SNAPSHOT

@@ -2,6 +2,9 @@ spring:
   application:
     name: demo-app
 
+  config:
+    import: optional:file:/vault/secrets/database.properties
+
   # By default, SQL database initialization is only performed when using an embedded in-memory database
   # To always initialize an SQL database, irrespective of its type, we set it to 'always'
   # schema.sql - can be used to create the schema for JPA-managed entities
