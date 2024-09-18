@@ -297,3 +297,6 @@ spring.r2dbc.url=r2dbc:postgresql://my-postgresql:5432/postgres
 ### Resources:
 
 https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-sidecar#role
+https://www.hashicorp.com/blog/refresh-secrets-for-kubernetes-applications-with-vault-agent
+https://developer.hashicorp.com/vault/docs/platform/k8s/injector
+
