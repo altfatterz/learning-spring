@@ -20,6 +20,7 @@ spring:
           authentication: token
           host: localhost
           port: 8200
+          # https://stackoverflow.com/questions/74982117/spring-cloud-config-hashicorp-vault-cannot-connect
           profile-separator: /
 
 management:
