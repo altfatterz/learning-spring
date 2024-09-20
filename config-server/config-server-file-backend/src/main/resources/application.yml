@@ -1,0 +1,25 @@
+spring:
+  application.name: config-server-file-backend
+  profiles:
+    # using the file system backend
+    # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/file-system-backend.html
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          # The default value of the searchLocations is identical to a local Spring Boot application
+          # (that is, [classpath:/, classpath:/config, file:./, file:./config])
+          search-locations:
+#            - classpath:/clients/
+            # modify the path if necessary
+            - file:${user.home}/projects/learning-spring/config-server/client-configs
+
+management:
+  endpoints.web.exposure.include: '*'
+
+server:
+  port: 8888
+
+logging.level:
+  org.springframework.cloud: DEBUG

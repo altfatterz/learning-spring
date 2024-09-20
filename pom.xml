@@ -18,6 +18,9 @@
         <module>vault-postgresql-r2dbc-demo</module>
         <module>openid-connect-demo</module>
         <module>vault-agent-sidecar-injector</module>
+
+        <module>config-server/config-server-file-backend</module>
+        <module>config-server/config-server-client</module>
     </modules>
 
 </project>
