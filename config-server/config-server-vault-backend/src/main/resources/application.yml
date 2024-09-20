@@ -21,6 +21,7 @@ spring:
           host: localhost
           port: 8200
           # https://stackoverflow.com/questions/74982117/spring-cloud-config-hashicorp-vault-cannot-connect
+          # https://github.com/spring-cloud/spring-cloud-config/issues/1973
           profile-separator: /
 
 management:
