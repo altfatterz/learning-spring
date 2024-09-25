@@ -9,11 +9,12 @@ spring:
   # More details: https://docs.spring.io/spring-boot/how-to/data-initialization.html
   sql.init.mode: always
 
-# not required to be set for PostgreSQLContainer with @ServiceConnection
+## not required to be set for PostgreSQLContainer with @ServiceConnection
 #  r2dbc:
 #    url: r2dbc:postgresql://localhost:55579/postgres
 #    username: postgres
 #    password: secret
+
 
 logging:
   level:
