@@ -129,3 +129,5 @@ Resources:
 https://www.postgresql.org/docs/current/ssl-tcp.html
 https://jdbc.postgresql.org/documentation/ssl/
 https://serverfault.com/questions/233034/ssl-on-postgres
+
+Smallstep: https://smallstep.com/hello-mtls/doc/combined/postgresql/psql
