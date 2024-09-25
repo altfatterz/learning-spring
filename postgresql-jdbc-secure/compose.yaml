@@ -1,0 +1,13 @@
+version: "3"
+services:
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=postgres
+    volumes:
+      - ./postgres-initdb:/docker-entrypoint-initdb.d/
+      - ./postgres-certs/:/var/lib/postgresql/certs/

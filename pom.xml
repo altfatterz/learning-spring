@@ -15,6 +15,7 @@
         <module>hello-cli</module>
         <module>vault-demo</module>
         <module>postgresql-r2dbc</module>
+        <module>postgresql-jdbc-secure</module>
         <module>vault-postgresql-r2dbc-demo</module>
         <module>openid-connect-demo</module>
         <module>vault-agent-sidecar-injector</module>
