@@ -68,3 +68,13 @@ expired_stale_perc:1.37
 expired_time_cap_reached_count:0
 ```
 
+7. Redis on Kubernetes
+
+```bash
+$ k3d cluster create k8s-cluster
+$ kubectl cluster-info
+$ kubectl get nodes
+$ kubectl apply -f k8s.yaml
+$ kubectl port-forward svc/redis 6379:6379
+$ kubectl port-forward svc/redis 8001:8001
+```

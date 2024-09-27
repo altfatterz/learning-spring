@@ -68,6 +68,28 @@ $ 127.0.0.1:6379> get 06b6e408-2df4-43c6-bed4-9000895da0b8
 "{\"id\":\"06b6e408-2df4-43c6-bed4-9000895da0b8\",\"name\":\"Black Alert Redis\"}"
 ```
 
+### Redis Hashes
+
+- Redis hashes are record types structured as collections of field-value pairs
+
+```bash
+> HSET bike:1 model Deimos brand Ergonom type 'Enduro bikes' price 4972
+(integer) 4
+> HGET bike:1 model
+"Deimos"
+> HGET bike:1 price
+"4972"
+> HGETALL bike:1
+1) "model"
+2) "Deimos"
+3) "brand"
+4) "Ergonom"
+5) "type"
+6) "Enduro bikes"
+7) "price"
+8) "4972"
+```
+
 ### Resources:
 
 Spring Date Reactive Redis: https://spring.io/guides/gs/spring-data-reactive-redis
