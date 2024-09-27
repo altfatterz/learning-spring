@@ -20,6 +20,7 @@
         <module>vault-postgresql-r2dbc-demo</module>
         <module>openid-connect-demo</module>
         <module>vault-agent-sidecar-injector</module>
+        <module>spring-reactive-redis</module>
 
         <module>config-server/config-server-file-backend</module>
         <module>config-server/config-server-vault-backend</module>
