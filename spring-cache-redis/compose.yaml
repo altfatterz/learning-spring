@@ -1,0 +1,9 @@
+services:
+  redis:
+    container_name: 'redis-stack'
+    # redis-stack installs a Redis server with additional database capabilities and the RedisInsight.
+    # https://hub.docker.com/r/redis/redis-stack
+    image: 'redis/redis-stack:7.4.0-v0'
+    ports:
+      - '6379:6379'
+      - '8001:8001' # UI
