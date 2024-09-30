@@ -171,6 +171,10 @@ c7a36c1768fd9552e7a8c3f9e809e923c63d9c48 10.42.0.27:6379@16379 slave 1e7ff9ae148
 41e60c17d7d461681b20079b508c1909c56454ea 10.42.0.28:6379@16379 slave ab55786d6781144a7f6cefb1414983c0376bf8d5 0 1727705105997 3 connected
 ab55786d6781144a7f6cefb1414983c0376bf8d5 10.42.0.26:6379@16379 master - 0 1727705105000 3 connected 10923-16383
 760d099fe7c46a0f57f3a367d694aa20da3f99d5 10.42.0.25:6379@16379 slave fa0edaccf7dfad4d74c159e5179bbab5badc7363 0 1727705107008 2 connected
+
+$  my-release-valkey-cluster:6379> info keyspace
+# Keyspace
+db0:keys=14,expires=14,avg_ttl=28797
 ```
 
 ### Redis UI :
@@ -228,4 +232,7 @@ $ k3d images import spring-cache-redis:0.0.1-SNAPSHOT -c k8s-cluster
 $ docker exec k3d-k8s-cluster-server-0 crictl images | grep spring-cache-redis
 docker.io/library/spring-cache-redis   0.0.1-SNAPSHOT         9dab214fd7203       361MB
 $ kubectl apply -f k8s/k8s.yaml
+$ kubectl apply -f k8s-redisinsight.yaml
+$ kubectl port-forward svc/redisinsight-service 5540:5540
+$ open http://localhost:5540
 ```
