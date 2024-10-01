@@ -22,6 +22,7 @@
         <module>vault-agent-sidecar-injector</module>
         <module>spring-reactive-redis</module>
         <module>spring-cache-redis</module>
+        <module>funds-transfer-app</module>
 
         <module>config-server/config-server-file-backend</module>
         <module>config-server/config-server-vault-backend</module>
