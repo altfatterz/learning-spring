@@ -44,3 +44,7 @@ $ open browser http://localhost:11222
 ```bash
 $ watch kubectl top pod infinispan-0
 ```
+
+TODO view it in `Prometheus` / `Grafana`:
+
+http://localhost:11222/metrics

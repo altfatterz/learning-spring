@@ -3,8 +3,8 @@ images:
   server: quay.io/infinispan/server:15.0
   initContainer: registry.access.redhat.com/ubi8-micro
 deploy:
-  # Create a cluster with 1 pods.
-  replicas: 1
+  # Create a cluster with 3 pods.
+  replicas: 3
   # Add a user with full security authorization only until testing is done
   security:
     batch: "user create admin -p changeme -g admin"
@@ -15,12 +15,16 @@ deploy:
         memory: 2Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 2Gi
     storage:
       ephemeral: true
+    extraJvmOpts: "-XX:+UseG1GC -Xmx1536m"
   infinispan:
     cacheContainer:
       statistics: true # Global statistics
+      jmx:
+        enabled: true
+        domain: localhost
       distributedCacheConfiguration:
         name: default
         mode: ASYNC
