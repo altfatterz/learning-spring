@@ -1,0 +1,35 @@
+---
+images:
+  server: quay.io/infinispan/server:15.0
+  initContainer: registry.access.redhat.com/ubi8-micro
+deploy:
+  # Create a cluster with 1 pods.
+  replicas: 1
+  # Add a user with full security authorization only until testing is done
+  security:
+    batch: "user create admin -p changeme -g admin"
+  container:
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
+    storage:
+      ephemeral: true
+  infinispan:
+    cacheContainer:
+      statistics: true # Global statistics
+      distributedCacheConfiguration:
+        name: default
+        mode: ASYNC
+        statistics: true # Cache statistics
+        encoding:
+          mediaType: "application/x-java-serialized-object"
+        expiration:
+          # lastUsed + maxIdle < currentTime then Infinispan detects that the entry is expired.
+          maxIdle: 300000
+        memory:
+          maxCount: 100000
+          whenFull: REMOVE
