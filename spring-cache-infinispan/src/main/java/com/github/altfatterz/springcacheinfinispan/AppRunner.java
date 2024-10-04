@@ -27,9 +27,17 @@ public class AppRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        remoteCacheManager.getNativeCacheManager().administration().getOrCreateCache("books", "default");
+        // create the cache
+        remoteCacheManager.getNativeCacheManager()
+                .administration().getOrCreateCache("books", "distributed");
 
         logger.info(".... Fetching books");
+//        for (int i = 0; i < 10; i++) {
+//            int nr = random.nextInt(1000000);
+//            String key = "isbn-" + nr;
+//            logger.info(key + " -->" + bookRepository.getByIsbn(key));
+//        }
+
         while (true) {
             int nr = random.nextInt(1000000);
             String key = "isbn-" + nr;

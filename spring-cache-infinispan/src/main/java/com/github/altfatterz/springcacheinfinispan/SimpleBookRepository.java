@@ -15,14 +15,14 @@ public class SimpleBookRepository implements BookRepository {
     @Cacheable("books")
     public Book getByIsbn(String isbn) {
         simulateSlowService();
-        String content = RandomStringUtils.randomAlphabetic(1000);
+        String content = RandomStringUtils.randomAlphabetic(100000);
         return new Book(isbn, faker.book().title(), content);
     }
 
     // Don't do this at home
     private void simulateSlowService() {
         try {
-            long time = 10L;
+            long time = 100L;
             Thread.sleep(time);
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
