@@ -1,12 +1,12 @@
-### Spring Cloud Config Server Demo
+### Spring Cloud with Vault Backend using Approle authentication
 
-1. Start Vault using `compose.yaml` file
+#### Start Vault using `compose.yaml` file
 
 ```bash
 $ docker compose up -d
 ```
 
-2. Store secret in Vault
+#### Configure Vault
 
 ```bash
 $ docker exec -it vault sh
@@ -40,6 +40,20 @@ identity/     identity     identity_b1073000     identity store
 secret/       kv           kv_99ab2fdb           key/value secret storage
 sys/          system       system_df236720       system endpoints used for control, policy and debugging
 
+// Enable AppRole auth method
+$ vault auth enable approle
+Success! Enabled approle auth method at: approle/
+
+$ vault auth list
+Path        Type       Accessor                 Description                Version
+----        ----       --------                 -----------                -------
+approle/    approle    auth_approle_08851426    n/a                        n/a
+token/      token      auth_token_c37f21e0      token based credentials    n/a
+```
+
+#### Store secret data
+
+```bash
 $ vault kv put -mount=secret config-server-client/dev message="Hello Dev from Vault!"
 $ vault kv put -mount=secret config-server-client/prd message="Hello Prod from Vault!"
 $ vault kv get -mount=secret config-server-client/dev
@@ -80,6 +94,103 @@ http :8200/v1/secret/data/config-server-client/dev "X-Vault-Token: 00000000-0000
     "wrap_info": null
 }
 ```
+
+#### Create a `config-server-client-policy` policy
+
+```bash
+$ vault policy write config-server-client-policy -<<EOF
+# Read-only permission on secrets stored at 'secret/data/config-server-client/dev'
+path "secret/data/config-server-client/dev" {
+  capabilities = [ "read" ]
+}
+path "secret/data/config-server-client/*" {
+  capabilities = [ "read" ]
+}
+EOF
+Success! Uploaded policy: config-server-client-policy
+$ vault policy list
+$ vault policy read config-server-client-policy
+```
+
+#### Create a `config-server-client-role` role 
+
+```bash
+$ vault write auth/approle/role/config-server-client-role token_policies="config-server-client-policy" \
+    token_ttl=1h token_max_ttl=4h
+Success! Data written to: auth/approle/role/config-server-client-role
+$ vault list auth/approle/role
+config-server-client-role
+$ vault read auth/approle/role/config-server-client-role
+Key                        Value
+---                        -----
+bind_secret_id             true
+local_secret_ids           false
+secret_id_bound_cidrs      <nil>
+secret_id_num_uses         0
+secret_id_ttl              0s
+token_bound_cidrs          []
+token_explicit_max_ttl     0s
+token_max_ttl              4h
+token_no_default_policy    false
+token_num_uses             0
+token_period               0s
+token_policies             [config-server-client-policy]
+token_ttl                  1h
+token_type                 default
+```
+
+#### Get RoleId and SecretId
+
+```bash
+$ vault read auth/approle/role/config-server-client-role/role-id
+Key        Value
+---        -----
+role_id    2b12b3e8-65f7-fe94-2438-51793ec109c9
+
+# generate a new SecretID
+$ vault write -force auth/approle/role/config-server-client-role/secret-id
+Key                   Value
+---                   -----
+secret_id             f6190cb1-ca36-a186-d339-010caddba9b2
+secret_id_accessor    569fc003-afc9-9bbd-b324-3b9d2f70f0af
+secret_id_num_uses    0
+secret_id_ttl         0s
+```
+
+#### Login with RoleId and SecretId
+
+Get a new shell
+
+```bash
+$ docker exec -it vault sh
+$ export VAULT_ADDR="http://127.0.0.1:8200"
+$ vault kv get secret/data/config-server-client/dev
+URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/data/config-server-client/dev
+Code: 403. Errors: permission denied
+// login 
+$ vault write auth/approle/login role_id="2b12b3e8-65f7-fe94-2438-51793ec109c9" \
+    secret_id="f6190cb1-ca36-a186-d339-010caddba9b2"
+Key                     Value
+---                     -----
+token                   hvs.CAESIG8ZIVzza-2O6XLgxX25Ywq5bfE7-Zzw8C0m8iY_l85XGh4KHGh2cy5vMzhPUjNPYW9IaGl2UlBpa2hUR1RqV3o
+token_accessor          mEPFcVGEu40UoVGw3Gi0OJ1E
+token_duration          1h
+token_renewable         true
+token_policies          ["config-server-client-policy" "default"]
+identity_policies       []
+policies                ["config-server-client-policy" "default"]
+token_meta_role_name    config-server-client-role
+
+// store the token
+export APP_TOKEN="hvs.CAESIG8ZIVzza-2O6XLgxX25Ywq5bfE7-Zzw8C0m8iY_l85XGh4KHGh2cy5vMzhPUjNPYW9IaGl2UlBpa2hUR1RqV3o"
+    
+// read secrets using the AppRole token
+VAULT_TOKEN=$APP_TOKEN vault kv get secret/data/config-server-client/dev
+URL: GET http://127.0.0.1:8200/v1/secret/data/data/config-server-client/dev
+Code: 403. Errors: permission denied -- WHY?????
+```
+
+More info:  
 
 3. Start `ConfigServerVaultBackendApplication` in IntelliJ
 
