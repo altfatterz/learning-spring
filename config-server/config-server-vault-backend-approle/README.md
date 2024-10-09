@@ -190,7 +190,7 @@ URL: GET http://127.0.0.1:8200/v1/secret/data/data/config-server-client/dev
 Code: 403. Errors: permission denied -- WHY?????
 ```
 
-More info:  
+More info: https://developer.hashicorp.com/vault/tutorials/auth-methods/approle  
 
 3. Start `ConfigServerVaultBackendApplication` in IntelliJ
 
