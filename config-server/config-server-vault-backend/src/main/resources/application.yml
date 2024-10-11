@@ -1,5 +1,5 @@
 spring:
-  application.name: config-server-file-backend
+  application.name: config-server-vault-backend
   profiles:
     # using the vault system backend
     # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/vault-backend.html

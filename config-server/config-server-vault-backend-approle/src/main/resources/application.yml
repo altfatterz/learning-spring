@@ -1,5 +1,5 @@
 spring:
-  application.name: config-server-file-backend-approle
+  application.name: config-server-vault-backend-approle
   profiles:
     # using the vault system backend
     # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/vault-backend.html
@@ -20,12 +20,14 @@ spring:
           host: localhost
           port: 8200
           app-role:
-            role-id: 2b12b3e8-65f7-fe94-2438-51793ec109c9
-            secret-id: f6190cb1-ca36-a186-d339-010caddba9b2
-
+            role-id: "d5a83454-9ddb-7f5e-82ae-71f8a91c3522"
+            secret-id: "fb241add-01eb-c2f5-921a-b14aecc7b158"
           # https://stackoverflow.com/questions/74982117/spring-cloud-config-hashicorp-vault-cannot-connect
           # https://github.com/spring-cloud/spring-cloud-config/issues/1973
           profile-separator: /
+
+
+
 
 management:
   endpoints.web.exposure.include: '*'
@@ -35,3 +37,4 @@ server:
 
 logging.level:
   org.springframework.cloud.config.server: TRACE
+  org.springframework.cloud.vault: TRACE

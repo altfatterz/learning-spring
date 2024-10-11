@@ -100,9 +100,6 @@ http :8200/v1/secret/data/config-server-client/dev "X-Vault-Token: 00000000-0000
 ```bash
 $ vault policy write config-server-client-policy -<<EOF
 # Read-only permission on secrets stored at 'secret/data/config-server-client/dev'
-path "secret/data/config-server-client/dev" {
-  capabilities = [ "read" ]
-}
 path "secret/data/config-server-client/*" {
   capabilities = [ "read" ]
 }
@@ -114,9 +111,12 @@ $ vault policy read config-server-client-policy
 
 #### Create a `config-server-client-role` role 
 
+Below example says that the generated token's time-to-live (TTL) is set to 2 hour and can be renewed for up to 4 hours of its first creation.
+This example creates a role which operates in pull mode.
+
 ```bash
 $ vault write auth/approle/role/config-server-client-role token_policies="config-server-client-policy" \
-    token_ttl=1h token_max_ttl=4h
+    token_ttl=2h token_max_ttl=4h
 Success! Data written to: auth/approle/role/config-server-client-role
 $ vault list auth/approle/role
 config-server-client-role
@@ -135,7 +135,7 @@ token_no_default_policy    false
 token_num_uses             0
 token_period               0s
 token_policies             [config-server-client-policy]
-token_ttl                  1h
+token_ttl                  2h
 token_type                 default
 ```
 
@@ -145,14 +145,14 @@ token_type                 default
 $ vault read auth/approle/role/config-server-client-role/role-id
 Key        Value
 ---        -----
-role_id    2b12b3e8-65f7-fe94-2438-51793ec109c9
+role_id    d5a83454-9ddb-7f5e-82ae-71f8a91c3522
 
 # generate a new SecretID
 $ vault write -force auth/approle/role/config-server-client-role/secret-id
 Key                   Value
 ---                   -----
-secret_id             f6190cb1-ca36-a186-d339-010caddba9b2
-secret_id_accessor    569fc003-afc9-9bbd-b324-3b9d2f70f0af
+secret_id             fb241add-01eb-c2f5-921a-b14aecc7b158
+secret_id_accessor    ed656def-3b46-a566-b8a3-57c0566aff2a
 secret_id_num_uses    0
 secret_id_ttl         0s
 ```
@@ -164,17 +164,17 @@ Get a new shell
 ```bash
 $ docker exec -it vault sh
 $ export VAULT_ADDR="http://127.0.0.1:8200"
-$ vault kv get secret/data/config-server-client/dev
+$ vault kv get secret/config-server-client/dev
 URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/data/config-server-client/dev
 Code: 403. Errors: permission denied
 // login 
-$ vault write auth/approle/login role_id="2b12b3e8-65f7-fe94-2438-51793ec109c9" \
-    secret_id="f6190cb1-ca36-a186-d339-010caddba9b2"
+$ vault write auth/approle/login role_id="d5a83454-9ddb-7f5e-82ae-71f8a91c3522" \
+    secret_id="fb241add-01eb-c2f5-921a-b14aecc7b158"
 Key                     Value
 ---                     -----
-token                   hvs.CAESIG8ZIVzza-2O6XLgxX25Ywq5bfE7-Zzw8C0m8iY_l85XGh4KHGh2cy5vMzhPUjNPYW9IaGl2UlBpa2hUR1RqV3o
-token_accessor          mEPFcVGEu40UoVGw3Gi0OJ1E
-token_duration          1h
+token                   hvs.CAESIGoyvFh-YJ-UvS8Nofa7Y6j7MyhLNyZ24dFxyHvMy-ncGh4KHGh2cy56ank5MlZMamRyak9VcGNhNnlMblJKVVA
+token_accessor          6pwan1MFPgLkHlwqXMNxYKbT
+token_duration          2h
 token_renewable         true
 token_policies          ["config-server-client-policy" "default"]
 identity_policies       []
@@ -182,17 +182,47 @@ policies                ["config-server-client-policy" "default"]
 token_meta_role_name    config-server-client-role
 
 // store the token
-export APP_TOKEN="hvs.CAESIG8ZIVzza-2O6XLgxX25Ywq5bfE7-Zzw8C0m8iY_l85XGh4KHGh2cy5vMzhPUjNPYW9IaGl2UlBpa2hUR1RqV3o"
+export APP_TOKEN="hvs.CAESIMELMF0J2ZqCO9TE-nmvS9dfPJnq4D1H_CGczWF7UmKlGh4KHGh2cy5pQjY3SzhqamNwTVU3aU83UGlJaFZHeGs"
     
 // read secrets using the AppRole token
-VAULT_TOKEN=$APP_TOKEN vault kv get secret/data/config-server-client/dev
-URL: GET http://127.0.0.1:8200/v1/secret/data/data/config-server-client/dev
-Code: 403. Errors: permission denied -- WHY?????
+VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/dev
+============ Secret Path ============
+secret/data/config-server-client/dev
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2024-10-11T07:30:00.968061206Z
+custom_metadata    <nil>
+deletion_time      n/a
+destroyed          false
+version            1
+
+===== Data =====
+Key        Value
+---        -----
+message    Hello Dev from Vault!
 ```
 
-More info: https://developer.hashicorp.com/vault/tutorials/auth-methods/approle  
+More info: https://developer.hashicorp.com/vault/tutorials/auth-methods/approle
 
 3. Start `ConfigServerVaultBackendApplication` in IntelliJ
+
+Before starting the app set the `role-id` and `secret-id` in the `appliation.yml` configuration and update the vault policy to:
+
+```bash
+$ vault policy write config-server-client-policy -<<EOF
+# Read-only permission on secrets stored at 'secret/data/config-server-client/dev'
+path "secret/data/*" {
+  capabilities = [ "read" ]
+}
+EOF
+vault policy read config-server-client-policy
+```
+
+expected exception: java.lang.IllegalStateException: No thread-bound request found: Are you referring to request attributes outside of an actual web request, or processing a request outside of the originally receiving thread? If you are actually operating within a web request and still receive this message, your code is probably running outside of DispatcherServlet: In this case, use RequestContextListener or RequestContextFilter to expose the current request.
+
+See: https://stackoverflow.com/questions/24025924/java-lang-illegalstateexception-no-thread-bound-request-found-exception-in-asp
 
 4. Verify that client configuration is exposed:
 
@@ -215,7 +245,6 @@ Hello Dev from Vault!
 ```
 
 5. Modify the secret in Vault and verify the config server knows about the change:
-
 
 ```bash
 $ vault kv put -mount=secret config-server-client/dev message="Hello Dev from Vault! - changed"
@@ -250,14 +279,15 @@ $ echo {} | http post :8080/actuator/refresh
 In the logs you should see:
 
 ```bash
-2024-09-20T10:54:35.012+02:00  INFO 39216 --- [config-server-client] [nio-8080-exec-1] o.s.c.c.c.ConfigServerConfigDataLoader   : Fetching config from server at : http://localhost:8888
-2024-09-20T10:54:35.024+02:00  INFO 39216 --- [config-server-client] [nio-8080-exec-1] o.s.c.c.c.ConfigServerConfigDataLoader   : Located environment: name=config-server-client, profiles=[dev], label=null, version=null, state=null
-2024-09-20T10:54:35.177+02:00  INFO 39216 --- [config-server-client] [nio-8080-exec-1] o.s.cloud.endpoint.RefreshEndpoint       : Refreshed keys : [message]
+2024-10-11T10:26:54.155+02:00  INFO 37630 --- [config-server-client] [nio-8080-exec-7] o.s.c.c.c.ConfigServerConfigDataLoader   : Located environment: name=config-server-client, profiles=[default], label=null, version=null, state=null
+2024-10-11T10:26:54.165+02:00  INFO 37630 --- [config-server-client] [nio-8080-exec-7] o.s.c.c.c.ConfigServerConfigDataLoader   : Fetching config from server at : http://localhost:8888
+2024-10-11T10:26:54.176+02:00  INFO 37630 --- [config-server-client] [nio-8080-exec-7] o.s.c.c.c.ConfigServerConfigDataLoader   : Located environment: name=config-server-client, profiles=[dev], label=null, version=null, state=null
+2024-10-11T10:26:54.309+02:00  INFO 37630 --- [config-server-client] [nio-8080-exec-7] o.s.cloud.endpoint.RefreshEndpoint       : Refreshed keys : [message]
 ```
 
 8. Verify that the client knows about the change:
 
 ```bash
 $ http :8080/message
-Hello Dev with 'file:' prefix! - changed
+Hello Dev from Vault! - changed
 ```
