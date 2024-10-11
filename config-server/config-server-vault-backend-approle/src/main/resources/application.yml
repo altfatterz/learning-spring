@@ -11,6 +11,8 @@ spring:
   cloud:
     config:
       server:
+        encrypt:
+          enabled: false
         vault:
           # Vault 0.10.0 introduced a versioned key-value backend (k/v backend version 2)
           # that exposes a different API than earlier versions
