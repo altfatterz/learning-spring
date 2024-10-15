@@ -1,10 +1,10 @@
 ---
 images:
-  server: quay.io/infinispan/server:15.0
+  server: quay.io/infinispan/server:15.0.10.Final
   initContainer: registry.access.redhat.com/ubi8-micro
 deploy:
   # Create a cluster with 3 pods.
-  replicas: 3
+  replicas: 1
   # Add a user with full security authorization only until testing is done
   security:
     batch: "user create admin -p changeme -g admin"
@@ -18,7 +18,11 @@ deploy:
         memory: 2Gi
     storage:
       ephemeral: true
-    extraJvmOpts: "-XX:+PrintCommandLineFlags -XX:+UseG1GC -Xmx1536m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.port=5000 -Dcom.sun.management.jmxremote.rmi.port=5000 -Djava.rmi.server.hostname=127.0.0.1"
+    env:
+      # This is used to calculate a default maximal heap memory (-Xmx) based on a containers restriction.
+      - name: JAVA_MAX_MEM_RATIO
+        value: "75"
+    extraJvmOpts: "-XX:+PrintCommandLineFlags -XX:+UseG1GC -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.port=5000 -Dcom.sun.management.jmxremote.rmi.port=5000 -Djava.rmi.server.hostname=127.0.0.1"
   infinispan:
     cacheContainer:
       statistics: true # Global statistics
