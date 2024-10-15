@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-cache-infinispan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-cache-infinispan
+  template:
+    metadata:
+      labels:
+        app: spring-cache-infinispan
+    spec:
+      containers:
+        - name: app
+          image: spring-cache-infinispan:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-cache-infinispan
+spec:
+  selector:
+    app: spring-cache-infinispan
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

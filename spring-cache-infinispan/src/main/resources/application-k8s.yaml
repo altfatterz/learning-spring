@@ -1,0 +1,5 @@
+infinispan:
+  remote:
+    server-list: infinispan:11222
+    auth-username: admin
+    auth-password: changeme

@@ -119,12 +119,30 @@ $ stats caches/books
   "average_remove_time_nanos" : 0,
   "required_minimum_number_of_nodes" : 1
 }
-
 ```
+
+### Running within the cluster with `k8s` 
+
+```bash
+$ mvn clean package spring-boot:build-image
+$ k3d images import spring-cache-infinispan:0.0.1-SNAPSHOT -c k8s-cluster 
+$ docker exec k3d-k8s-cluster-server-0 crictl images | grep spring-cache-infinispan
+$ kubectl apply -f k8s/k8s.yaml
+```
+
+
+describe //containers/default
+
+availability
+rebalance
+
 
 
 ### Resources
 
 https://github.com/infinispan/infinispan-helm-charts
 https://github.com/infinispan/infinispan (Issues tracked [here](https://issues.redhat.com/projects/ISPN/issues/ISPN-14766?filter=allopenissues))
+https://github.com/infinispan/infinispan-simple-tutorials/
+
+
 

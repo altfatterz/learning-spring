@@ -1,7 +1,6 @@
 spring:
   application.name: spring-cache-infinispan
 
-
 infinispan:
   remote:
     server-list: localhost:11222
