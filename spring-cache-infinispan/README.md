@@ -131,18 +131,38 @@ $ kubectl apply -f k8s/k8s.yaml
 ```
 
 
-describe //containers/default
+### Create cache with Inifinispan CLI
 
+```bash
+$ kubectl exec -it infinispan-0 -- sh
+$ cat <<EOF > cache-config.json
+// copy here the content of example-cache-config.json
+EOF
+$ bin/cli.sh 
+$ connect -u admin -p changeme
+$ create cache c1
+$ describe caches/c1 
+$ cd caches/c1
+$ put foo bar
+$ get foo
+bar
+```
+
+- other commands:
+
+```bash
+describe //containers/default
 availability
 rebalance
-
-
+```
 
 ### Resources
 
 https://github.com/infinispan/infinispan-helm-charts
 https://github.com/infinispan/infinispan (Issues tracked [here](https://issues.redhat.com/projects/ISPN/issues/ISPN-14766?filter=allopenissues))
 https://github.com/infinispan/infinispan-simple-tutorials/
+https://infinispan.org/docs/stable/titles/cli/cli.html
+
 
 
 

@@ -31,14 +31,15 @@ deploy:
         domain: localhost
       distributedCacheConfiguration:
         name: distributed
-        mode: SYNC
+        mode: ASYNC
         statistics: true # Cache statistics
         # ???
-        owners: 1
+        # owners: 1
         # by default 256 https://infinispan.org/docs/stable/titles/tuning/tuning.html
-        segments: 60
+        # segments: 256
         encoding:
           mediaType: "application/x-java-serialized-object"
+#          mediaType: "text/plain"
         expiration:
           # lastUsed + maxIdle < currentTime then Infinispan detects that the entry is expired.
           maxIdle: 300000

@@ -1,0 +1,24 @@
+{
+  "distributed-cache": {
+    "mode": "ASYNC",
+    "statistics": true,
+    "encoding": {
+      "media-type": "text/plain"
+    },
+    "locking" : {
+      "concurrency-level" : "1000",
+      "acquire-timeout" : "15000",
+      "striping" : false
+    },
+    "expiration": {
+      "max-idle": "300000"
+    },
+    "memory": {
+      "max-count": "100000",
+      "when-full": "REMOVE"
+    },
+    "state-transfer": {
+      "timeout": "60000"
+    }
+  }
+}
