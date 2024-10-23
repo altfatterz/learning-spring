@@ -22,14 +22,15 @@ spring:
           host: localhost
           port: 8200
           app-role:
-            role-id: "d5a83454-9ddb-7f5e-82ae-71f8a91c3522"
-            secret-id: "fb241add-01eb-c2f5-921a-b14aecc7b158"
+            role-id: "e94f7a87-3f6f-dfca-7d29-9cdd08abfd09"
+            secret-id: "7ef8b034-7e7c-d826-9b98-f469b0cd082d"
           # https://stackoverflow.com/questions/74982117/spring-cloud-config-hashicorp-vault-cannot-connect
           # https://github.com/spring-cloud/spring-cloud-config/issues/1973
           profile-separator: /
-
-
-
+          # to ignore the following requests:
+          # GET http://localhost:8200/v1/secret/data/application/dev
+          # GET http://localhost:8200/v1/secret/data/application
+          default-key: ""
 
 management:
   endpoints.web.exposure.include: '*'
@@ -40,3 +41,4 @@ server:
 logging.level:
   org.springframework.cloud.config.server: TRACE
   org.springframework.cloud.vault: TRACE
+  org.springframework.web.client.RestTemplate: TRACE

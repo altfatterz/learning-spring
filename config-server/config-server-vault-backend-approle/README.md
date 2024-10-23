@@ -103,6 +103,9 @@ $ vault policy write config-server-client-policy -<<EOF
 path "secret/data/config-server-client/*" {
   capabilities = [ "read" ]
 }
+path "secret/data/config-server-client" {
+  capabilities = [ "read" ]
+} 
 EOF
 Success! Uploaded policy: config-server-client-policy
 $ vault policy list
@@ -168,11 +171,11 @@ $ vault kv get secret/config-server-client/dev
 URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/data/config-server-client/dev
 Code: 403. Errors: permission denied
 // login 
-$ vault write auth/approle/login role_id="d5a83454-9ddb-7f5e-82ae-71f8a91c3522" \
-    secret_id="fb241add-01eb-c2f5-921a-b14aecc7b158"
+$ vault write auth/approle/login role_id="e94f7a87-3f6f-dfca-7d29-9cdd08abfd09" \
+    secret_id="7ef8b034-7e7c-d826-9b98-f469b0cd082d"
 Key                     Value
 ---                     -----
-token                   hvs.CAESIGoyvFh-YJ-UvS8Nofa7Y6j7MyhLNyZ24dFxyHvMy-ncGh4KHGh2cy56ank5MlZMamRyak9VcGNhNnlMblJKVVA
+token                   hvs.CAESIOFbcNJ0a_QLoOIF612rFJhb2O3iZlLwLzxd7ucb7x21Gh4KHGh2cy5FbzJ0S1dxNXNYRGw0VnJFaVI3TDNoTGQ
 token_accessor          6pwan1MFPgLkHlwqXMNxYKbT
 token_duration          2h
 token_renewable         true
@@ -182,7 +185,7 @@ policies                ["config-server-client-policy" "default"]
 token_meta_role_name    config-server-client-role
 
 // store the token
-export APP_TOKEN="hvs.CAESIMELMF0J2ZqCO9TE-nmvS9dfPJnq4D1H_CGczWF7UmKlGh4KHGh2cy5pQjY3SzhqamNwTVU3aU83UGlJaFZHeGs"
+export APP_TOKEN="hvs.CAESIOFbcNJ0a_QLoOIF612rFJhb2O3iZlLwLzxd7ucb7x21Gh4KHGh2cy5FbzJ0S1dxNXNYRGw0VnJFaVI3TDNoTGQ"
     
 // read secrets using the AppRole token
 VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/dev
@@ -208,18 +211,6 @@ More info: https://developer.hashicorp.com/vault/tutorials/auth-methods/approle
 
 3. Start `ConfigServerVaultBackendApplication` in IntelliJ
 
-Before starting the app set the `role-id` and `secret-id` in the `appliation.yml` configuration and update the vault policy to:
-
-```bash
-$ vault policy write config-server-client-policy -<<EOF
-# Read-only permission on secrets stored at 'secret/data/config-server-client/dev'
-path "secret/data/*" {
-  capabilities = [ "read" ]
-}
-EOF
-vault policy read config-server-client-policy
-```
-
 expected exception: java.lang.IllegalStateException: No thread-bound request found: Are you referring to request attributes outside of an actual web request, or processing a request outside of the originally receiving thread? If you are actually operating within a web request and still receive this message, your code is probably running outside of DispatcherServlet: In this case, use RequestContextListener or RequestContextFilter to expose the current request.
 
 See: https://stackoverflow.com/questions/24025924/java-lang-illegalstateexception-no-thread-bound-request-found-exception-in-asp
@@ -229,6 +220,18 @@ See: https://stackoverflow.com/questions/24025924/java-lang-illegalstateexceptio
 ```bash
 $ http :8888/config-server-client/dev
 $ http :8888/config-server-client/prd 
+```
+
+Check in the logs:
+
+```bash
+2024-10-23T10:59:03.123+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8200/v1/secret/data/config-server-client/dev
+2024-10-23T10:59:03.123+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2024-10-23T10:59:03.126+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : Response 200 OK
+2024-10-23T10:59:03.126+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : Reading to [org.springframework.vault.support.VaultResponseSupport<com.fasterxml.jackson.databind.JsonNode>]
+2024-10-23T10:59:03.137+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8200/v1/secret/data/config-server-client
+2024-10-23T10:59:03.137+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2024-10-23T10:59:03.140+02:00 DEBUG 23155 --- [config-server-vault-backend-approle] [nio-8888-exec-1] o.s.web.client.RestTemplate              : Response 404 NOT_FOUND
 ```
 
 3. Start the client in `dev` profile
