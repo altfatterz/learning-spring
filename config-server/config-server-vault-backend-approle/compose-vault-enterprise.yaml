@@ -1,0 +1,10 @@
+# does not work needs a licence, sent request to hashicorp for trial licence
+services:
+  vault:
+    container_name: vault
+    image: hashicorp/vault-enterprise:1.18-ent
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "00000000-0000-0000-0000-000000000000"
+    ports:
+      - "8200:8200"
+    privileged: true
