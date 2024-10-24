@@ -1,0 +1,24 @@
+defaultVaultConnection:
+  enabled: true
+  address: "http://vault.vault.svc.cluster.local:8200"
+  skipTLSVerify: false
+#controller:
+#  manager:
+#    # has settings for the cache to use the direct encrypted mode.
+#    clientCache:
+#      persistenceModel: direct-encrypted
+#      # specifies details of the transit secrets engine
+#      # More details: https://developer.hashicorp.com/vault/docs/platform/k8s/vso/helm#v-controller-manager-clientcache-storageencryption
+#      storageEncryption:
+#        enabled: true
+#        # sets the Kubernetes auth method engine named demo-auth-transit used by the demo-transit
+#        mount: demo-auth-mount
+#        # specifies a key named vso-client-cache used for encrypt/decrypt operations.
+#        keyName: vso-client-cache
+#        # sets the transit secrets engine mount named demo-transit
+#        transitMount: demo-transit
+#        # sub-section configures the Vault Kubernetes auth method, specifying the role and the service account.
+#        kubernetes:
+#          role: auth-role-operator
+#          serviceAccount: vault-secrets-operator-controller-manager
+#          tokenAudiences: ["vault"]
