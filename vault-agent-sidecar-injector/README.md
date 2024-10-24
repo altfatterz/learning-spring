@@ -3,7 +3,7 @@
 1. Start PostgreSQL
 
 ```bash
-$ docker compose uo -d
+$ docker compose up -d
 ```
 
 2. Start the application `DemoApp`
@@ -107,6 +107,10 @@ $ helm repo add hashicorp https://helm.releases.hashicorp.com
 $ helm repo update
 # install Vault in development mode
 $ helm install my-vault hashicorp/vault --set "server.dev.enabled=true"
+$ kubectl get svc | grep my-vault
+my-vault-internal                   ClusterIP   None            <none>        8200/TCP,8201/TCP   117s
+my-vault                            ClusterIP   10.43.69.16     <none>        8200/TCP,8201/TCP   117s
+my-vault-agent-injector-svc         ClusterIP   10.43.209.49    <none>        443/TCP             117s
 $ kubectl get pods | grep my-vault
 my-vault-agent-injector-6f7bdcdc9-pfjqv              1/1     Running   0          106s
 my-vault-0                                           1/1     Running   0          106s
@@ -154,7 +158,14 @@ db_username    postgres
 $ kubectl exec -it my-vault-0 -- sh
 $ vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
+$ vault auth list
+Path           Type          Accessor                    Description                Version
+----           ----          --------                    -----------                -------
+kubernetes/    kubernetes    auth_kubernetes_5f45404b    n/a                        n/a
+token/         token         auth_token_d6d4b08c         token based credentials    n/a
 # Configure the Kubernetes authentication method to use the location of the Kubernetes API.
+# KUBERNETES_PORT_443_TCP_ADDR is the IP of the 'kubernetes' ClusterIp service 
+$ echo $KUBERNETES_PORT_443_TCP_ADDR
 $ vault write auth/kubernetes/config kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
 $ vault read auth/kubernetes/config
 
@@ -178,6 +189,7 @@ path "secret/data/vault-agent-sidecar-injector-demo" {
    capabilities = ["read"]
 }
 EOF
+$ vault policy list
 $ vault policy read vault-agent-sidecar-injector-demo-policy
 ```
 
@@ -193,7 +205,7 @@ $ vault write auth/kubernetes/role/vault-agent-sidecar-injector-demo-role \
       bound_service_account_names=vault-agent-sidecar-injector-demo-sa \
       bound_service_account_namespaces=default \
       policies=vault-agent-sidecar-injector-demo-policy \
-      ttl=24h
+      ttl=24h      
 $ vault read auth/kubernetes/role/vault-agent-sidecar-injector-demo-role
 ```
 
@@ -201,7 +213,7 @@ $ vault read auth/kubernetes/role/vault-agent-sidecar-injector-demo-role
 
 ```bash
 $ kubectl create sa vault-agent-sidecar-injector-demo-sa
-$ kubectl get serviceaccounts
+$ kubectl get sa
 
 default                                0         68m
 my-postgresql                          0         68m
@@ -210,24 +222,7 @@ my-vault                               0         41m
 vault-agent-sidecar-injector-demo-sa   0         23s
 ```
 
-- Launch the application
-
-```bash
-$ kubectl apply -f k8s/k8s-with-sa.yaml
-```
-
-- Verify that secrets are written to the `vault-agent-sidecar-injector-demo` container in
-  the `vault-agent-sidecar-injector-demo` pod.
-
-```bash
-$ kubectl exec \
-      $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") \
-      --container vault-agent-sidecar-injector-demo -- ls /vault/secrets
-ls: cannot access '/vault/secrets': No such file or directory
-command terminated with exit code 2      
-```
-
-- Inject secrets into the pod
+- Inject secrets into the pod (delete the previous one app)
 
 ```bash
 $ kubectl apply -f k8s/k8s-inject-secrets.yaml
@@ -267,13 +262,18 @@ Vault Agent started! Log data will stream in below:
 2024-09-18T09:39:51.101Z [INFO]  agent.auth.handler: renewed auth token
 ```
 
+The `vault-agent` was authenticated with the provided service account, got a token and stored it in `/home/vault/.vault-token` folder.
+This token is used to request secrets.
+
+```bash
+$ /vault/secrets $ cat /home/vault/.vault-token
+hvs.CAESIKTVOxnjfJpN22NTQd14939OL_DSg2tclCwrZil94zAAGh4KHGh2cy5qU1dVWFl6cUoyZ0VCT01xc0YwR1Q3TmY/vault/secrets
+```
+
 - Display the secret written to the vault-agent-sidecar-injector-demo container.
 
 ```bash
-$ kubectl exec \
-      $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") \
-      --container vault-agent-sidecar-injector-demo -- cat /vault/secrets/database.properties
-      
+$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") --container vault-agent -- cat /vault/secrets/database.properties 
 data: map[spring.r2dbc.password:secret spring.r2dbc.url:r2dbc:postgresql://my-postgresql:5432/postgres spring.r2dbc.username:postgres]
 metadata: map[created_time:2024-09-18T09:04:48.281025014Z custom_metadata:<nil> deletion_time: destroyed:false version:3]      
 ```
@@ -284,15 +284,20 @@ Here we disabled also the environment variable SPRING_R2DBC_URL, the configurati
 `/vault/secrets/database.properties`
 
 ```bash
+# delete the previous app
+$ kubectl delete -f k8s/k8s-inject-secrets.yaml 
 $ kubectl apply -f k8s/k8s-inject-secrets-as-template.yaml
-$ kubectl exec \
-      $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") \
-      --container vault-agent-sidecar-injector-demo -- cat /vault/secrets/database.properties
-  
+$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") --container vault-agent -- cat /vault/secrets/database.properties
 spring.r2dbc.username=postgres
 spring.r2dbc.password=secret
 spring.r2dbc.url=r2dbc:postgresql://my-postgresql:5432/postgres  
 ```
+
+```bash
+http :8080/customers\?lastName=Doe
+```
+
+### TODO: Vault Agent using AppRole authentication
 
 ### Resources:
 

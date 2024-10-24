@@ -76,6 +76,12 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                        <builder>paketobuildpacks/builder-jammy-base:0.4.343</builder>
+                        <runImage>paketobuildpacks/run-jammy-base:0.1.130</runImage>
+                    </image>
+                </configuration>
             </plugin>
         </plugins>
     </build>
