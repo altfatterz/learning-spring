@@ -36,7 +36,7 @@ vault-0   1/1     Running   0          6m5s
 Check Vault UI:
 
 ```bash
-$ kubeclt port-forward svc/vault-ui 8200:8200 -n vault
+$ kubectl port-forward svc/vault-ui 8200:8200 -n vault
 $ open http://localhost:8200
 ```
 
@@ -58,6 +58,17 @@ demo-auth-mount/    kubernetes    auth_kubernetes_e503fef3    n/a               
 token/              token         auth_token_e154fb27         token based credentials    n/a
 # Configure the auth method.
 $ vault write auth/demo-auth-mount/config kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+$ vault read auth/demo-auth-mount/config
+Key                                  Value
+---                                  -----
+disable_iss_validation               true
+disable_local_ca_jwt                 false
+issuer                               n/a
+kubernetes_ca_cert                   n/a
+kubernetes_host                      https://10.43.0.1:443
+pem_keys                             []
+token_reviewer_jwt_set               false
+use_annotations_as_alias_metadata    false
 # Enable a new kv-v2 secrets Engine
 $ vault secrets enable -path=kvv2 kv-v2
 $ vault secrets list
@@ -94,7 +105,25 @@ $ vault write auth/demo-auth-mount/role/role1 \
    audience=vault \
    ttl=24h
 Success! Data written to: auth/demo-auth-mount/role/role1 
-$ vault read auth/demo-auth-mount/role/role1 
+$ vault read auth/demo-auth-mount/role/role1
+Key                                         Value
+---                                         -----
+alias_name_source                           serviceaccount_uid
+audience                                    vault
+bound_service_account_names                 [demo-static-app]
+bound_service_account_namespace_selector    n/a
+bound_service_account_namespaces            [app]
+policies                                    [webapp]
+token_bound_cidrs                           []
+token_explicit_max_ttl                      0s
+token_max_ttl                               0s
+token_no_default_policy                     false
+token_num_uses                              0
+token_period                                0s
+token_policies                              [webapp]
+token_ttl                                   24h
+token_type                                  default
+ttl                                         24h 
 ```
 
 Create a secret
@@ -125,64 +154,6 @@ username    static-user
 
 Check the `vault-operator-values.yaml`
 
-Vault Secrets Operator can be configured to maintain an internal, encrypted persistent cache of client tokens.
-
-This is helpful for being able to transparently renew leases for dynamic secrets should the operator restart.
-
-```yaml
-defaultVaultConnection:
-  enabled: true
-  address: "http://vault.vault.svc.cluster.local:8200"
-  skipTLSVerify: false
-controller:
-  manager:
-    clientCache:
-      persistenceModel: direct-encrypted
-      storageEncryption:
-        enabled: true
-        mount: demo-auth-mount
-        keyName: vso-client-cache
-        transitMount: demo-transit
-        kubernetes:
-          role: auth-role-operator
-          serviceAccount: vault-secrets-operator-controller-manager
-          tokenAudiences: ["vault"]
-```
-
-```bash
-$ kubectl exec -it vault-0 -n vault -- sh
-# We need a Transit Secrets Engine.
-$ vault secrets enable -path=demo-transit transit
-# Success! Enabled the transit secrets engine at: demo-transit/
-$ vault secrets list
-# Create a encryption key.
-$ vault write -force demo-transit/keys/vso-client-cache
-# Success! Data written to: demo-transit/keys/vso-client-cache
-$ vault read demo-transit/keys/vso-client-cache
-# Create a policy for the operator role to access the encryption key.
-$ vault policy write demo-auth-policy-operator - <<EOF
-path "demo-transit/encrypt/vso-client-cache" {
-   capabilities = ["create", "update"]
-}
-path "demo-transit/decrypt/vso-client-cache" {
-   capabilities = ["create", "update"]
-}
-EOF
-# Success! Uploaded policy: demo-auth-policy-operator
-$ vault policy list
-# Create Kubernetes auth role for the operator.
-$ vault write auth/demo-auth-mount/role/auth-role-operator \
-   bound_service_account_names=vault-secrets-operator-controller-manager \
-   bound_service_account_namespaces=vault-secrets-operator-system \
-   token_ttl=0 \
-   token_period=120 \
-   token_policies=demo-auth-policy-operator \
-   audience=vault
-# Success! Data written to: auth/demo-auth-mount/role/auth-role-operator
-```
-
-Install the Secrets Operator
-
 ```bash
 $ helm install vault-secrets-operator hashicorp/vault-secrets-operator -n vault-secrets-operator-system --create-namespace --values vault-operator-values.yaml
 ```
@@ -192,15 +163,15 @@ Review the CRDs:
 ```bash
 $ kubectl get crds | grep hashicorp
 
-hcpauths.secrets.hashicorp.com                2024-10-24T11:57:47Z
-hcpvaultsecretsapps.secrets.hashicorp.com     2024-10-24T11:57:47Z
-secrettransformations.secrets.hashicorp.com   2024-10-24T11:57:47Z
-vaultauthglobals.secrets.hashicorp.com        2024-10-24T11:57:47Z
-vaultauths.secrets.hashicorp.com              2024-10-24T11:57:47Z
-vaultconnections.secrets.hashicorp.com        2024-10-24T11:57:47Z
-vaultdynamicsecrets.secrets.hashicorp.com     2024-10-24T11:57:48Z
-vaultpkisecrets.secrets.hashicorp.com         2024-10-24T11:57:48Z
-vaultstaticsecrets.secrets.hashicorp.com      2024-10-24T11:57:48Z
+hcpauths.secrets.hashicorp.com                2024-10-25T13:48:46Z
+hcpvaultsecretsapps.secrets.hashicorp.com     2024-10-25T13:48:46Z
+secrettransformations.secrets.hashicorp.com   2024-10-25T13:48:46Z
+vaultauthglobals.secrets.hashicorp.com        2024-10-25T13:48:46Z
+vaultauths.secrets.hashicorp.com              2024-10-25T13:48:46Z
+vaultconnections.secrets.hashicorp.com        2024-10-25T13:48:46Z
+vaultdynamicsecrets.secrets.hashicorp.com     2024-10-25T13:48:46Z
+vaultpkisecrets.secrets.hashicorp.com         2024-10-25T13:48:46Z
+vaultstaticsecrets.secrets.hashicorp.com      2024-10-25T13:48:46Z
 ```
 
 ```bash
@@ -209,4 +180,100 @@ vault                           vault-0                                         
 vault-secrets-operator-system   vault-secrets-operator-controller-manager-5fd78476f-kvnqd   2/2     Running     0          102s
 ```
 
+### Deploy and sync a secret
 
+```
+# Create a namespace called 'app' 
+$ kubectl create ns app
+# Set up Kubernetes authentication for the secret.
+$ kubectl apply -f vault-auth-static.yaml
+$ kubectl describe vaultauth static-auth -n app
+Name:         static-auth
+Namespace:    app
+Labels:       <none>
+Annotations:  <none>
+API Version:  secrets.hashicorp.com/v1beta1
+Kind:         VaultAuth
+Metadata:
+  Creation Timestamp:  2024-10-25T13:50:40Z
+  Finalizers:
+    vaultauth.secrets.hashicorp.com/finalizer
+  Generation:        1
+  Resource Version:  984
+  UID:               c7a8bfbc-6283-4ea2-8242-e966c08e3840
+Spec:
+  Kubernetes:
+    Audiences:
+      vault
+    Role:                      role1
+    Service Account:           demo-static-app
+    Token Expiration Seconds:  600
+  Method:                      kubernetes
+  Mount:                       demo-auth-mount
+Status:
+  Spec Hash:  661c57ea3d9f706b38193a7659b40060607d3560c6e28477a0e433d100636ad4
+  Valid:      true
+Events:
+  Type    Reason    Age   From       Message
+  ----    ------    ----  ----       -------
+  Normal  Accepted  61s   VaultAuth  Successfully handled VaultAuth resource request
+```
+
+# Create a 'secretkv' in the app namespace.
+
+```bash
+$ kubectl apply -f static-secret.yaml
+$ kubectl describe vaultstaticsecret vault-kv-app -n app
+Name:         vault-kv-app
+Namespace:    app
+Labels:       <none>
+Annotations:  <none>
+API Version:  secrets.hashicorp.com/v1beta1
+Kind:         VaultStaticSecret
+Metadata:
+  Creation Timestamp:  2024-10-25T13:53:39Z
+  Finalizers:
+    vaultstaticsecret.secrets.hashicorp.com/finalizer
+  Generation:        2
+  Resource Version:  1135
+  UID:               21b5eb20-7ce5-483d-b477-91c2e09bffd0
+Spec:
+  Destination:
+    Create:     true
+    Name:       secretkv
+    Overwrite:  false
+    Transformation:
+  Hmac Secret Data:  true
+  Mount:             kvv2
+  Path:              webapp/config
+  Refresh After:     30s
+  Type:              kv-v2
+  Vault Auth Ref:    static-auth
+Status:
+  Last Generation:  2
+  Secret MAC:       vo7gRUvdQ7e5jp+i3YIXVJRN0NQAgeBTUf6eJv7QlOQ=
+Events:
+  Type    Reason         Age   From               Message
+  ----    ------         ----  ----               -------
+  Normal  SecretSynced   102s  VaultStaticSecret  Secret synced
+  Normal  SecretRotated  102s  VaultStaticSecret  Secret synced
+```
+
+The corresponding secret was created: 
+
+```bash
+$ kubectl get secret secretkv -o yaml -n app
+apiVersion: v1
+data:
+  _raw: eyJkYXRhIjp7InBhc3N3b3JkIjoic3RhdGljLXBhc3N3b3JkIiwidXNlcm5hbWUiOiJzdGF0aWMtdXNlciJ9LCJtZXRhZGF0YSI6eyJjcmVhdGVkX3RpbWUiOiIyMDI0LTEwLTI1VDEzOjQ4OjI2LjM5NzgwMzA2N1oiLCJjdXN0b21fbWV0YWRhdGEiOm51bGwsImRlbGV0aW9uX3RpbWUiOiIiLCJkZXN0cm95ZWQiOmZhbHNlLCJ2ZXJzaW9uIjoxfX0=
+  password: c3RhdGljLXBhc3N3b3Jk
+  username: c3RhdGljLXVzZXI=
+kind: Secret
+type: Opaque
+```
+
+If you change the secret in Vault the corresponding Kubernetes secret will be changed.
+
+### Resources:
+
+https://developer.hashicorp.com/vault/tutorials/kubernetes/vault-secrets-operator
