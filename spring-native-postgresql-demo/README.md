@@ -69,7 +69,7 @@ $ http :8080/customers
 ### Build a container for the app and run it together with Docker Compose
 
 ```bash
-$ mvn -Pnative spring-boot:build-image
+$ mvn -Pnative clean spring-boot:build-image
 $ docker compose -f docker-compose-combined.yaml up -d
 ```
 

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.github.altfatterz</groupId>
@@ -35,7 +35,6 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>r2dbc-postgresql</artifactId>
-			<!-- Needs to be compile dependency because of DatabaseConfig -->
 			<scope>runtime</scope>
 		</dependency>
 
@@ -82,6 +81,22 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<builder>paketobuildpacks/builder-jammy-tiny:0.0.299</builder>
+						<runImage>paketobuildpacks/run-jammy-tiny:0.2.53</runImage>
+					</image>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.graalvm.buildtools</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<!-- Speed up GraalVM compilation a bit - don not use in production -->
+				<configuration>
+					<buildArgs>
+						<buildArg>-Ob</buildArg>
+					</buildArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
