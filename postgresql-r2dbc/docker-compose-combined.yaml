@@ -5,10 +5,10 @@ services:
       db:
         condition: service_healthy
      # Not recognised configuration
-#    environment:
-#      - 'SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/postgres'
-#      - 'SPRING_R2DBC_USERNAME=postgres'
-#      - 'SPRING_R2DBC_PASSWORD=secret'
+    environment:
+      - 'SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/postgres'
+      - 'SPRING_R2DBC_USERNAME=postgres'
+      - 'SPRING_R2DBC_PASSWORD=secret'
     ports:
       - '8080:8080'
   db:
