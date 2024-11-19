@@ -8,11 +8,11 @@ spring:
   # data.sql - to populate it
   # More details: https://docs.spring.io/spring-boot/how-to/data-initialization.html
   sql.init.mode: always
-  # If we bake the configuration into the image then the connection to PostgreSQL works
-#  r2dbc:
-#    url: r2dbc:postgresql://db:5432/postgres
-#    username: postgres
-#    password: secret
+
+  r2dbc:
+    url: tbd
+    username: tbd
+    password: tbd
 
 
 logging:

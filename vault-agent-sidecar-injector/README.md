@@ -53,7 +53,7 @@ $ PGPASSWORD=secret psql -h localhost -U postgres -d postgres -p 5432
 4. Build a docker image:
 
 ```bash
-$ mvn spring-boot:build-image
+$d
 ```
 
 5. Import the image and verify
