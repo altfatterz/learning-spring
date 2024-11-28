@@ -29,6 +29,10 @@
         <module>config-server/config-server-vault-backend</module>
         <module>config-server/config-server-vault-backend-approle</module>
         <module>config-server/config-server-client</module>
+
+        <module>oauth-demo/spring-authorization-server</module>
+        <module>oauth-demo/resource-server</module>
+        <module>oauth-demo/resource-server-client</module>
     </modules>
 
 </project>
