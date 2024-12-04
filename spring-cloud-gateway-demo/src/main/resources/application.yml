@@ -6,8 +6,14 @@ spring:
       routes:
         - id: internal
           uri: ${gateway.uri:http://localhost:8080}
+#          preceding route matches if the request is a GET request with path /service/backend/api/v3/get and contains a name query parameter.
+#          - GET request
+#          - PATH /service/backend/api/v3/get
+#          - contain a 'name' query parameter which value can be 'robert' or 'daniel'
           predicates:
             - Path=/service/backend/api/v3/get
+            - Method=GET
+            - Query=name, robert|daniel
           filters:
             - StripPrefix=2
           order: 1

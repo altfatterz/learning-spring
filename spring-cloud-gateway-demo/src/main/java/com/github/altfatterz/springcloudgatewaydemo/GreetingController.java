@@ -11,8 +11,7 @@ import java.util.Map;
 public class GreetingController {
 
     @GetMapping("/api/v3/get")
-    public String greet(@RequestParam(required = false) String name,
-                        @RequestHeader Map<String,String> headers) {
+    public String greet(@RequestParam(required = false) String name, @RequestHeader Map<String,String> headers) {
         System.out.println("I was called");
         System.out.println(headers);
         if (name != null) return "Hello " + name + "!";
