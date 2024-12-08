@@ -1,0 +1,13 @@
+spring:
+  application.name: spring-webflux-and-r2dbc
+
+  sql.init.mode: always
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: secret
+
+logging:
+  level:
+    org.springframework.r2dbc: DEBUG

@@ -33,6 +33,10 @@
         <module>oauth-demo/spring-authorization-server</module>
         <module>oauth-demo/resource-server</module>
         <module>oauth-demo/resource-server-client</module>
+
+        <module>spring-webflux-and-jdbc</module>
+        <module>spring-webflux-and-r2dbc</module>
     </modules>
+
 
 </project>
