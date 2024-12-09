@@ -45,3 +45,12 @@ Content-Type: application/json
     "payer": "Jane"
 }
 ```
+
+
+Resources
+
+By default `Reactor Netty` uses an “Event Loop Group”, where the number of the worker threads equals the number of 
+processors available to the runtime on initialization (but with a minimum value of 4)
+https://projectreactor.io/docs/netty/1.1.21/reference/index.html
+
+
