@@ -1,7 +1,7 @@
 ### Spring AI 
 
-Reference: https://docs.spring.io/spring-ai/reference/index.html
-GitHub: https://github.com/spring-projects/spring-ai
+* Reference: https://docs.spring.io/spring-ai/reference/index.html
+* GitHub: https://github.com/spring-projects/spring-ai
 
 ### SpringOne 2024
 
