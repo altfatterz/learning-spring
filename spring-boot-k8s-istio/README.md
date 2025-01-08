@@ -5,9 +5,9 @@
 ```bash
 $ cd ~/apps
 $ curl -L https://istio.io/downloadIstio | sh -
-# at the time of writing this is istio-1.23.2
+# at the time of writing this is istio-1.24.2
 # put it into .zshrc
-# export ISTIO_HOME=~/apps/istio-1.23.2
+# export ISTIO_HOME=~/apps/istio-1.24.2
 # export PATH="$ISTIO_HOME/bin:$PATH"
 ```
 
@@ -21,9 +21,9 @@ $ kubectl cluster-info
 ### Check Istio version
 
 ```bash
-$ istioctl --version
+$ istioctl version
 Istio is not present in the cluster: no running Istio pods in namespace "istio-system"
-client version: 1.23.2
+client version: 1.24.2
 $ istioctl x precheck
 ✔ No issues found when checking the cluster. Istio is safe to install or upgrade!
   To get started, check out https://istio.io/latest/docs/setup/getting-started/

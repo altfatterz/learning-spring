@@ -1,0 +1,11 @@
+spring:
+  application.name: postgresql-istio-demo
+  sql.init.mode: always
+
+  datasource:
+    username: postgres
+    password: secret
+    url: jdbc:postgresql://localhost:5432/postgres
+
+logging.level:
+  org.springframework.jdbc.core: TRACE
