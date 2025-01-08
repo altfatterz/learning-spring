@@ -44,7 +44,7 @@ $ cd ~/apps
 $ curl -L https://istio.io/downloadIstio | sh -
 # at the time of writing this is istio-1.24.2
 # put it into .zshrc
-# export ISTIO_HOME=~/apps/istio-1.24.2
+# export ISTIO_HOME=~/apps/istio-1.18.7
 # export PATH="$ISTIO_HOME/bin:$PATH"
 ```
 
@@ -98,7 +98,18 @@ $ kubectl label namespace default istio-injection-
 Pod level - `sidecar.istio.io/inject` with `"true"` or `"false"`
 
 
-### 
+### Add peer-authentication
+
+```bash
+$ kubectl apply -f peer-authentication.yml
+$ kubectl get peerauthentication
+NAME                  MODE     AGE
+peer-authentication   STRICT   23m
+$ kubectl run -it busybox --image=radial/busyboxplus:curl --restart=Never --rm -- sh
+# this is failing, however the app can still access postgresql during startup why is that? 
+$ curl -v postgresql-istio-demo:8080/customers\?lastName=Doe
+
+```
 
 
 
