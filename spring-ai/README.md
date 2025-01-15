@@ -33,3 +33,6 @@
 
 ### JetBreains
 * Building Intelligent Applications With Spring AI: https://www.youtube.com/watch?v=x6KmUyPWy2Q
+  
+### Spring AI Examples
+https://github.com/apappascs/spring-ai-examples
