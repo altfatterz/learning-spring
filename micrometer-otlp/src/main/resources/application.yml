@@ -1,5 +1,19 @@
 spring.application.name: micrometer-otlp
 
+
 management:
-  otlp:
+  # disable all registries
+  defaults:
+    metrics:
+      export:
+        enabled: false
+
+  # publishing metrics for DynatraceMeterRegistry every 5s
+  dynatrace:
+    metrics:
+      export:
+        step: "5s"
+
+#  tracing:
+#    enabled: false
 
