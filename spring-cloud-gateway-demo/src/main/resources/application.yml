@@ -17,6 +17,15 @@ spring:
           filters:
             - StripPrefix=2
           order: 1
+        - id: route-with-authorization
+          uri: ${gateway.uri:http://localhost:8080}
+          # allow only when the header "x-api-key: simple-key" Note the header name is case insensitive
+          predicates:
+            - Path=/service/backend/api/v3/api-key
+            - Header=x-api-key, simple-key
+          filters:
+            - StripPrefix=2
+          order: 2
         - id: default
           uri: http://httpbin.org:80
           predicates:

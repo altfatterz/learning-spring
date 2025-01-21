@@ -28,6 +28,8 @@
         <module>funds-transfer-app</module>
         <module>spring-cache-infinispan</module>
 
+        <module>micrometer-otlp</module>
+
         <module>config-server/config-server-file-backend</module>
         <module>config-server/config-server-vault-backend</module>
         <module>config-server/config-server-vault-backend-approle</module>

@@ -17,4 +17,11 @@ public class GreetingController {
         if (name != null) return "Hello " + name + "!";
         else return "Hello World!";
     }
+
+    @GetMapping("/api/v3/api-key")
+    public String foo(@RequestHeader Map<String,String> headers) {
+        System.out.println("foo was called");
+        System.out.println(headers);
+        return headers.toString();
+    }
 }

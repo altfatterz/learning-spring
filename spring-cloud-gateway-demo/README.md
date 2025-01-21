@@ -76,6 +76,19 @@ Server: gunicorn/19.9.0
 }
 ```
 
+### API KEY
+
+```bash
+$ http :8081/service/backend/api/v3/api-key 'x-api-key: simple-key'
+
+HTTP/1.1 200 OK
+Content-Length: 353
+Content-Type: text/plain;charset=UTF-8
+
+{Accept-Encoding=gzip, deflate, Accept=*/*, User-Agent=HTTPie/3.2.4, X-API-KEY=simple-key, Forwarded=proto=http;host="localhost:8081";for="[0:0:0:0:0:0:0:1]:63366", X-Forwarded-For=0:0:0:0:0:0:0:1, X-Forwarded-Proto=http, X-Forwarded-Prefix=/service/backend, X-Forwarded-Port=8081, X-Forwarded-Host=localhost:8081, host=localhost:8081, content-length=0}
+```
+
+
 ### Enable Native Build
 
 ```bash
