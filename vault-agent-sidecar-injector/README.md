@@ -1,14 +1,18 @@
-### Try locally
+## Try locally
 
-1. Start PostgreSQL
+### Start PostgreSQL
 
 ```bash
 $ docker compose up -d
 ```
 
-2. Start the application `DemoApp`
+### Build and start the application `DemoApp`
 
-3. Access the endpoint:
+```bash
+$ mvn clean package spring-boot:run
+```
+
+### Access the endpoint:
 
 ```bash
 $ http :8080/customers\?lastName=Doe
@@ -25,16 +29,23 @@ $ http :8080/customers\?lastName=Doe
 ]
 ```
 
-### Running on Kubernetes
+## Running on Kubernetes
 
-1. Create a Kubernetes cluster:
+### Create a Kubernetes cluster:
 
 ```bash
-$ k3d cluster create my-k8s-cluster
+$ k3d cluster create k8s-cluster
 $ kubectl cluster-info
+Kubernetes control plane is running at https://0.0.0.0:60607
+CoreDNS is running at https://0.0.0.0:60607/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Metrics-server is running at https://0.0.0.0:60607/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
+
+$ kubectl get nodes
+NAME                       STATUS   ROLES                  AGE     VERSION
+k3d-k8s-cluster-server-0   Ready    control-plane,master   3m19s   v1.30.6+k3s1
 ```
 
-2. Install PostgreSQL:
+### Install PostgreSQL:
 
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami 
@@ -43,35 +54,35 @@ $ helm install my-postgresql bitnami/postgresql -f postgresql-values.yaml
 $ helm status my-postgresql
 ```
 
-3. Test connection to PostgreSQL:
+### Test connection to PostgreSQL:
 
 ```bash
 $ kubectl port-forward svc/my-postgresql 5432:5432
 $ PGPASSWORD=secret psql -h localhost -U postgres -d postgres -p 5432
 ```
 
-4. Build a docker image:
+### Build a docker image of the application
 
 ```bash
-$d
+$ mvn spring-boot:build-image
 ```
 
-5. Import the image and verify
+### Import the image into the `k8s-cluster` cluster
 
 ```bash
-$ k3d images import vault-agent-sidecar-injector:0.0.1-SNAPSHOT -c my-k8s-cluster 
-$ docker exec k3d-my-k8s-cluster-server-0 crictl images | grep vault
+$ k3d images import vault-agent-sidecar-injector:0.0.1-SNAPSHOT -c k8s-cluster 
+$ docker exec k3d-k8s-cluster-server-0 crictl images | grep vault
 
-docker.io/library/vault-agent-sidecar-injector   0.0.1-SNAPSHOT         9dab214fd7203       361MB
+docker.io/library/vault-agent-sidecar-injector   0.0.1-SNAPSHOT         baebde64ddd1e       364MB
 ```
 
-6. Install the app
+### Install the app
 
 ```bash
 $ kubectl apply -f k8s/k8s.yaml
 ```
 
-7. Test it
+### Test it
 
 ```bash
 $ kubectl get pods 
@@ -98,25 +109,29 @@ transfer-encoding: chunked
 ]
 ```
 
-### Using Vault Agent Sidecar Injector
+## Using Vault Agent Sidecar Injector with Kubernetes authentication
 
-- Install Vault
+#### Install Vault
 
 ```bash
 $ helm repo add hashicorp https://helm.releases.hashicorp.com
 $ helm repo update
+
 # install Vault in development mode
 $ helm install my-vault hashicorp/vault --set "server.dev.enabled=true"
+
+$ kubectl get pod | grep my-vault
+my-vault-0                                           1/1     Running   0          42s
+my-vault-agent-injector-7b6f54669c-jcmp7             1/1     Running   0          42s
+
 $ kubectl get svc | grep my-vault
 my-vault-internal                   ClusterIP   None            <none>        8200/TCP,8201/TCP   117s
 my-vault                            ClusterIP   10.43.69.16     <none>        8200/TCP,8201/TCP   117s
 my-vault-agent-injector-svc         ClusterIP   10.43.209.49    <none>        443/TCP             117s
-$ kubectl get pods | grep my-vault
-my-vault-agent-injector-6f7bdcdc9-pfjqv              1/1     Running   0          106s
-my-vault-0                                           1/1     Running   0          106s
+
 ```
 
-- Access the Vault UI
+### Access the Vault UI
 
 ```bash
 $ kubectl port-forward svc/my-vault 8200:8200
@@ -124,7 +139,7 @@ $ kubectl port-forward svc/my-vault 8200:8200
 $ open http://localhost:8200/ui 
 ```
 
-- Add the databases connection details into Vault
+### Add the databases connection details into Vault (using the /secret secret engine)
 
 ```bash
 $ kubectl exec -it my-vault-0 -- sh
@@ -142,7 +157,7 @@ created_time       2024-09-18T09:04:48.281025014Z
 custom_metadata    <nil>
 deletion_time      n/a
 destroyed          false
-version            3
+version            1
 
 ======= Data =======
 Key            Value
@@ -152,20 +167,60 @@ db_url         r2dbc:postgresql://my-postgresql:5432/postgres
 db_username    postgres
 ```
 
-- Configure Kubernetes authentication
+You can get this information also with curl like:
+
+```bash
+$ http :8200/v1/secret/data/vault-agent-sidecar-injector-demo "X-Vault-Token: root"
+
+{
+    "auth": null,
+    "data": {
+        "data": {
+            "db_password": "secret",
+            "db_url": "r2dbc:postgresql://my-postgresql:5432/postgres",
+            "db_username": "postgres"
+        },
+        "metadata": {
+            "created_time": "2025-01-31T15:12:35.345207457Z",
+            "custom_metadata": null,
+            "deletion_time": "",
+            "destroyed": false,
+            "version": 1
+        }
+    },
+    "lease_duration": 0,
+    "lease_id": "",
+    "mount_type": "kv",
+    "renewable": false,
+    "request_id": "0dc90cb0-08ef-92a0-7294-6d14a96e82d3",
+    "warnings": null,
+    "wrap_info": null
+}
+```
+
+### Configure Kubernetes authentication
 
 ```bash
 $ kubectl exec -it my-vault-0 -- sh
+
+$ vault auth list
+Path      Type     Accessor               Description                Version
+----      ----     --------               -----------                -------
+token/    token    auth_token_e6054326    token based credentials    n/a
+
 $ vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
+
 $ vault auth list
 Path           Type          Accessor                    Description                Version
 ----           ----          --------                    -----------                -------
-kubernetes/    kubernetes    auth_kubernetes_5f45404b    n/a                        n/a
-token/         token         auth_token_d6d4b08c         token based credentials    n/a
+kubernetes/    kubernetes    auth_kubernetes_e0d795ef    n/a                        n/a
+token/         token         auth_token_e6054326         token based credentials    n/a
+
 # Configure the Kubernetes authentication method to use the location of the Kubernetes API.
 # KUBERNETES_PORT_443_TCP_ADDR is the IP of the 'kubernetes' ClusterIp service 
 $ echo $KUBERNETES_PORT_443_TCP_ADDR
+
 $ vault write auth/kubernetes/config kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
 $ vault read auth/kubernetes/config
 
@@ -181,7 +236,7 @@ token_reviewer_jwt_set               false
 use_annotations_as_alias_metadata    false
 ```
 
-- Create a policy, that enabled `read` capability for secrets at `secret/data/vault-agent-sidecar-injector-demo`
+### Create a policy, that enabled `read` capability for secrets at `secret/data/vault-agent-sidecar-injector-demo`
 
 ```bash
 $ vault policy write vault-agent-sidecar-injector-demo-policy - <<EOF
@@ -189,27 +244,12 @@ path "secret/data/vault-agent-sidecar-injector-demo" {
    capabilities = ["read"]
 }
 EOF
+Success! Uploaded policy: vault-agent-sidecar-injector-demo-policy
 $ vault policy list
 $ vault policy read vault-agent-sidecar-injector-demo-policy
 ```
 
-- Create a Kubernetes authentication role
-
-The role connects the Kubernetes service account `vault-agent-sidecar-injector-demo-sa` and namespace `default`
-with the Vault policy, `vault-agent-sidecar-injector-demo-policy`.
-The tokens returned after authentication are valid for 24 hours.
-The secret is bound to the `vault-agent-sidecar-injector-demo-sa` service account and to the `default` namespace
-
-```bash
-$ vault write auth/kubernetes/role/vault-agent-sidecar-injector-demo-role \
-      bound_service_account_names=vault-agent-sidecar-injector-demo-sa \
-      bound_service_account_namespaces=default \
-      policies=vault-agent-sidecar-injector-demo-policy \
-      ttl=24h      
-$ vault read auth/kubernetes/role/vault-agent-sidecar-injector-demo-role
-```
-
-- Define a Kubernetes service account
+### Define a Kubernetes service account
 
 ```bash
 $ kubectl create sa vault-agent-sidecar-injector-demo-sa
@@ -222,7 +262,43 @@ my-vault                               0         41m
 vault-agent-sidecar-injector-demo-sa   0         23s
 ```
 
-- Inject secrets into the pod (delete the previous one app)
+### Create a Kubernetes authentication role
+
+The role connects the Kubernetes service account `vault-agent-sidecar-injector-demo-sa` and namespace `default`
+with the Vault policy, `vault-agent-sidecar-injector-demo-policy`.
+The tokens returned after authentication are valid for 24 hours.
+The secret is bound to the `vault-agent-sidecar-injector-demo-sa` service account and to the `default` namespace
+
+```bash
+$ vault write auth/kubernetes/role/vault-agent-sidecar-injector-demo-role \
+      bound_service_account_names=vault-agent-sidecar-injector-demo-sa \
+      bound_service_account_namespaces=default \
+      policies=vault-agent-sidecar-injector-demo-policy \
+      ttl=24h 
+Success! Data written to: auth/kubernetes/role/vault-agent-sidecar-injector-demo-role     
+$ vault read auth/kubernetes/role/vault-agent-sidecar-injector-demo-role
+
+Key                                         Value
+---                                         -----
+alias_name_source                           serviceaccount_uid
+bound_service_account_names                 [vault-agent-sidecar-injector-demo-sa]
+bound_service_account_namespace_selector    n/a
+bound_service_account_namespaces            [default]
+policies                                    [vault-agent-sidecar-injector-demo-policy]
+token_bound_cidrs                           []
+token_explicit_max_ttl                      0s
+token_max_ttl                               0s
+token_no_default_policy                     false
+token_num_uses                              0
+token_period                                0s
+token_policies                              [vault-agent-sidecar-injector-demo-policy]
+token_ttl                                   24h
+token_type                                  default
+ttl                                         24h
+```
+
+
+### Inject secrets into the pod (delete the previous one app)
 
 ```bash
 $ kubectl apply -f k8s/k8s-inject-secrets.yaml
@@ -266,19 +342,19 @@ The `vault-agent` was authenticated with the provided service account, got a tok
 This token is used to request secrets.
 
 ```bash
-$ /vault/secrets $ cat /home/vault/.vault-token
-hvs.CAESIKTVOxnjfJpN22NTQd14939OL_DSg2tclCwrZil94zAAGh4KHGh2cy5qU1dVWFl6cUoyZ0VCT01xc0YwR1Q3TmY/vault/secrets
+$ cat /home/vault/.vault-token
+hvs.CAESIKuU2F2OQOum8ueIBsnA8TBgDR_tgNoiJ3OyzG31rjjAGh4KHGh2cy5vaEtHd0RsOVVVOGlwaDZLbHlRUzZQTUE
 ```
 
-- Display the secret written to the vault-agent-sidecar-injector-demo container.
+### Display the secret written to the vault-agent-sidecar-injector-demo container.
 
 ```bash
-$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") --container vault-agent -- cat /vault/secrets/database.properties 
+$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") -c app -- cat /vault/secrets/database.properties 
 data: map[spring.r2dbc.password:secret spring.r2dbc.url:r2dbc:postgresql://my-postgresql:5432/postgres spring.r2dbc.username:postgres]
 metadata: map[created_time:2024-09-18T09:04:48.281025014Z custom_metadata:<nil> deletion_time: destroyed:false version:3]      
 ```
 
-- Apply a template to the injected secrets
+### Apply a template to the injected secrets (remove the previously deployed)
 
 Here we disabled also the environment variable SPRING_R2DBC_URL, the configuration is from
 `/vault/secrets/database.properties`
@@ -287,7 +363,7 @@ Here we disabled also the environment variable SPRING_R2DBC_URL, the configurati
 # delete the previous app
 $ kubectl delete -f k8s/k8s-inject-secrets.yaml 
 $ kubectl apply -f k8s/k8s-inject-secrets-as-template.yaml
-$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") --container vault-agent -- cat /vault/secrets/database.properties
+$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") -c app -- cat /vault/secrets/database.properties
 spring.r2dbc.username=postgres
 spring.r2dbc.password=secret
 spring.r2dbc.url=r2dbc:postgresql://my-postgresql:5432/postgres  
@@ -297,7 +373,7 @@ spring.r2dbc.url=r2dbc:postgresql://my-postgresql:5432/postgres
 http :8080/customers\?lastName=Doe
 ```
 
-### TODO: Vault Agent using AppRole authentication
+## TODO: Vault Agent using AppRole authentication
 
 ### Resources:
 
