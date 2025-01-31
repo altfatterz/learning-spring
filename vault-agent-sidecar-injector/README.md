@@ -373,11 +373,38 @@ spring.r2dbc.url=r2dbc:postgresql://my-postgresql:5432/postgres
 http :8080/customers\?lastName=Doe
 ```
 
-## TODO: Vault Agent using AppRole authentication
+## Vault - Kubernetes authentication
+
+https://developer.hashicorp.com/vault/docs/auth/kubernetes
+
+The kubernetes auth method can be used to authenticate with `Vault` using a `Kubernetes Service Account Token`.  
+This token is provided to each pod when it is created.
+- The vault secrets are bound to the service account.
+- The vault secrets are bound to the namespace
+
+Kubernetes Service Account Token
+
+```bash
+$ kubectl get sa
+NAME                                   SECRETS   AGE
+default                                0         59m
+my-postgresql                          0         58m
+my-vault                               0         51m
+my-vault-agent-injector                0         51m
+vault-agent-sidecar-injector-demo-sa   0         39m
+
+$ kubectl create token vault-agent-sidecar-injector-demo-sa
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImVWTW9Fd1E0VHlWaHV2Z0lzMFhYRmdhUEJzeVFpa0Z0RVdHUUJuOVVQQU0ifQ.e...
+```
+
+
+## Vault - AppRole authentication (TODO)
+
+
 
 ### Resources:
 
-https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-sidecar#role
+https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-sidecar
 https://www.hashicorp.com/blog/refresh-secrets-for-kubernetes-applications-with-vault-agent
 https://developer.hashicorp.com/vault/docs/platform/k8s/injector
 
