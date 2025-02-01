@@ -619,7 +619,124 @@ Code: 403. Errors:
 
 ```
 
+### Response wrap the SecretID https://developer.hashicorp.com/vault/tutorials/auth-methods/approle#response-wrap-the-secretid
 
+To keep the `SecretID` confidential, use response wrapping so that only the expecting client can unwrap the SecretID.
+
+```bash
+# instead of vault write -force auth/approle/role/gitlab/secret-id
+$ vault write -wrap-ttl=60s -force auth/approle/role/gitlab/secret-id
+Key                              Value
+---                              -----
+wrapping_token:                  hvs.CAESIEvuABo8h6h-jMhNAoNuuF603CdcptQYB0WiCqsPLkKXGh4KHGh2cy5ZSXNWQ2dxRTF4ZnZUS3pTYWVaT3BDRE8
+wrapping_accessor:               qZPGx3BywZ69ztqgsI2u9TqB
+wrapping_token_ttl:              1m
+wrapping_token_creation_time:    2025-02-01 15:49:03.836173638 +0000 UTC
+wrapping_token_creation_path:    auth/approle/role/gitlab/secret-id
+wrapped_accessor:                0f6c7b85-e2c0-ba52-c6b2-67bdf7d5dd62
+
+$ VAULT_TOKEN="hvs.CAESIEvuABo8h6h-jMhNAoNuuF603CdcptQYB0WiCqsPLkKXGh4KHGh2cy5ZSXNWQ2dxRTF4ZnZUS3pTYWVaT3BDRE8" vault unwrap
+Key                   Value
+---                   -----
+secret_id             ffbdf459-1ae1-e521-6c1f-0ef487166012
+secret_id_accessor    0f6c7b85-e2c0-ba52-c6b2-67bdf7d5dd62
+secret_id_num_uses    0
+secret_id_ttl         0s
+
+After 60 seconds we get:
+$ VAULT_TOKEN="hvs.CAESIEvuABo8h6h-jMhNAoNuuF603CdcptQYB0WiCqsPLkKXGh4KHGh2cy5ZSXNWQ2dxRTF4ZnZUS3pTYWVaT3BDRE8" vault unwrap
+
+Error unwrapping: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/sys/wrapping/unwrap
+Code: 400. Errors:
+
+* wrapping token is not valid or does not exist
+```
+
+### Limit the SecretID usages https://developer.hashicorp.com/vault/tutorials/auth-methods/approle#limit-the-secretid-usages
+
+Treat the SecretID like a password and force it to be regenerated after a number of use.
+
+In this example, a `SecretID` of the gitlab role can be used for up to 2 times to authenticate and fetch a client token.
+
+```bash
+$ vault write auth/approle/role/gitlab token_policies="jenkins" \
+     token_ttl=1h token_max_ttl=4h \
+     secret_id_num_uses=2
+     
+$ vault write -force auth/approle/role/gitlab/secret-id
+Key                   Value
+---                   -----
+secret_id             b17d7696-41c3-1e7f-38e6-b560b53843f2
+secret_id_accessor    c7e6f192-a357-872d-a3e8-a656bd19ba16
+secret_id_num_uses    2
+secret_id_ttl         0s
+
+$ vault write auth/approle/login role_id="ab429a9c-0fc3-1a22-e25d-e22a073bc895" \
+    secret_id="b17d7696-41c3-1e7f-38e6-b560b53843f2"
+
+Key                     Value
+---                     -----
+token                   hvs.CAESIGsnYcM5-03UqhwS9NiSYNpAY7-_e-mZyZzq3tM2U_BcGh4KHGh2cy5uU3ljd25xVTNvOElodjNQUVB1dGFlMko
+token_accessor          bTOxJeInL0s2jvDkBJTXwuhm
+token_duration          1h
+token_renewable         true
+token_policies          ["default" "jenkins"]
+identity_policies       []
+policies                ["default" "jenkins"]
+token_meta_role_name    gitlab
+
+$ vault write auth/approle/login role_id="ab429a9c-0fc3-1a22-e25d-e22a073bc895" \
+    secret_id="b17d7696-41c3-1e7f-38e6-b560b53843f2"
+
+Key                     Value
+---                     -----
+token                   hvs.CAESIHGLNbcRrCbgrqHb9Oj3gpIywv044aklBBuwV6dRgFxOGh4KHGh2cy5QWHdqeHdEQk1US0o1M1JJQnJkZGNBNFM
+token_accessor          AdN3ht8SDTSBz6dZgNllwBrt
+token_duration          1h
+token_renewable         true
+token_policies          ["default" "jenkins"]
+identity_policies       []
+policies                ["default" "jenkins"]
+token_meta_role_name    gitlab
+  
+$ vault write auth/approle/login role_id="ab429a9c-0fc3-1a22-e25d-e22a073bc895" \
+    secret_id="b17d7696-41c3-1e7f-38e6-b560b53843f2"
+    
+Error writing data to auth/approle/login: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/auth/approle/login
+Code: 400. Errors:
+
+* invalid role or secret ID        
+```
+
+### Check client token validity: 
+
+The below token was create with `token_ttl=1h` and is currently valid for `22m52s` (see `ttl`)
+```bash
+$ vault token lookup hvs.CAESIFo7bYmtBwRy1aBntsf4KN6xwRIsOLGCN4kzvH-fKEbBGh4KHGh2cy5IU0tYZDZ0WmZQMXlYSDJXZHNqZGlSZDU
+Key                 Value
+---                 -----
+accessor            EGpFN3doXRSWKjbaASogz4VL
+creation_time       1738423723
+creation_ttl        1h
+display_name        approle
+entity_id           8b06c4e3-bb3b-7fad-e44d-33fa3c2d26fb
+expire_time         2025-02-01T16:28:43.125065301Z
+explicit_max_ttl    0s
+id                  hvs.CAESIFo7bYmtBwRy1aBntsf4KN6xwRIsOLGCN4kzvH-fKEbBGh4KHGh2cy5IU0tYZDZ0WmZQMXlYSDJXZHNqZGlSZDU
+issue_time          2025-02-01T15:28:43.125068375Z
+meta                map[role_name:gitlab]
+num_uses            0
+orphan              true
+path                auth/approle/login
+policies            [default gitlab]
+renewable           true
+ttl                 22m52s
+type                service
+```
 
 ## Resources:
 
