@@ -41,6 +41,8 @@
 
         <module>spring-webflux-and-jdbc</module>
         <module>spring-webflux-and-r2dbc</module>
+
+        <module>spring-boot-htmx</module>
     </modules>
 
 

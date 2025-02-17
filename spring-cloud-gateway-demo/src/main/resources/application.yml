@@ -13,7 +13,7 @@ spring:
           predicates:
             - Path=/service/backend/api/v3/get
             - Method=GET
-            - Query=name, robert|daniel
+            - Query=name
           filters:
             - StripPrefix=2
           order: 1
