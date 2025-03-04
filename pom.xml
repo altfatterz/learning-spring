@@ -43,6 +43,7 @@
         <module>spring-webflux-and-r2dbc</module>
 
         <module>spring-boot-htmx</module>
+        <module>spring-refreshscope-demo</module>
     </modules>
 
 

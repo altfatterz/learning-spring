@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: spring-refreshscope-demo
+
+  # no need to connect to external config server
+  cloud.config.enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure.include: '*'
+  endpoint:
+    env:
+      show-values: ALWAYS
+    health:
+      show-details: ALWAYS
+
+route-config:
+  db-contract-route: false
+  db-customers-route: false
+  db-accounts-route: false
+
+logging:
+  level:
+    com.github.altfatterz: DEBUG
+    org.springframework.cloud: DEBUG
+    org.springframework.boot: DEBUG
