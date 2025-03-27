@@ -15,8 +15,7 @@ Hello robert!
 #### Matches the 'default' route
 
 ```bash
-$ http :8081/service/backend/api/v3/get\?name=zoltan
-
+$ http :8081/service/backend/api/v3/get\?wrong-parameter=Zoltan
 
 HTTP/1.1 200 OK
 Access-Control-Allow-Credentials: true
