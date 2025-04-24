@@ -21,7 +21,6 @@
         <module>postgresql-istio-demo</module>
 
         <module>vault-postgresql-r2dbc-demo</module>
-        <module>openid-connect-demo</module>
         <module>vault-agent-sidecar-injector</module>
         <module>spring-reactive-redis</module>
         <module>spring-cache-redis</module>
@@ -44,6 +43,8 @@
 
         <module>spring-boot-htmx</module>
         <module>spring-refreshscope-demo</module>
+
+        <module>spring-cloud-loadbalancer-demo</module>
     </modules>
 
 
