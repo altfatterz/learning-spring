@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
+import java.math.BigDecimal;
+
 @RestController
 public class CustomerRestController {
 
@@ -18,12 +20,13 @@ public class CustomerRestController {
     @GetMapping("/customers")
     public Flux<CustomerResponse> customers(@RequestParam String lastName) {
         return customerRepository.findByLastname(lastName).map(it ->
-                new CustomerResponse(it.id(), it.firstname(), it.lastname()));
+                new CustomerResponse(it.id(), it.firstname(), it.lastname(), it.balance()));
     }
 
-    record CustomerResponse(Long id, @JsonIgnore String firstName, @JsonIgnore String lastName) {
+    record CustomerResponse(Long id, @JsonIgnore String firstName,
+                            @JsonIgnore String lastName, BigDecimal balance) {
         public String getName() {
-            return firstName + " " + lastName;
+            return firstName + " " + lastName + " :" + balance;
         }
     }
 }

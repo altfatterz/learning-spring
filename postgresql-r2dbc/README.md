@@ -4,8 +4,17 @@
 
 Start the `TestPostgresqlR2dbcApplication` - should start PostgreSQL with TestContainer
 
+
 ```bash
-$ psql -h localhost -p 5432 -d postgres -U postgres
+docker ps
+
+CONTAINER ID   IMAGE                       COMMAND                  CREATED          STATUS          PORTS                     NAMES
+40efd0b338d0   postgres:16                 "docker-entrypoint.s…"   12 minutes ago   Up 12 minutes   0.0.0.0:60432->5432/tcp   reverent_moore
+9a4f021f8467   testcontainers/ryuk:0.7.0   "/bin/ryuk"              12 minutes ago   Up 12 minutes   0.0.0.0:60430->8080/tcp   testcontainers-ryuk-dd3c4df3-46f8-4193-94fa-f8ad909e98db
+```
+
+```bash
+$ psql -h localhost -p <port> -d postgres -U postgres
 secret
 test=# \d
             List of relations
@@ -21,12 +30,14 @@ $ http :8080/customers\?lastName=Doe
 
 [
     {
+        "balance": 123.456789,
         "id": 1,
-        "name": "John Doe"
+        "name": "John Doe :123.456789"
     },
     {
+        "balance": 1e-06,
         "id": 2,
-        "name": "Jane Doe"
+        "name": "Jane Doe :0.000001"
     }
 ]
 ```
@@ -52,9 +63,9 @@ $ java -jar target/postgresql-r2dbc-0.0.1-SNAPSHOT.jar \
 - Add data to database
 ```bash
 $ psql -p <port> -U postgres
-insert into customers(firstname, lastname) values ('John', 'Doe');
-insert into customers(firstname, lastname) values ('Jane', 'Doe');
-insert into customers(firstname, lastname) values ('John', 'Wick');
+insert into customers(firstname, lastname, balance) values ('John', 'Doe', 0.01);
+insert into customers(firstname, lastname, balance) values ('Jane', 'Doe', 0.002);
+insert into customers(firstname, lastname, balance) values ('John', 'Wick', 0.0003);
 ```
 
 ### Running with Native Build

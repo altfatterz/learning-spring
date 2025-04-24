@@ -13,6 +13,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataR2dbcTest
@@ -40,8 +42,8 @@ class CustomerRepositoryTests {
 
     @Test
     void executesFindByLastname() {
-        var john = new Customer(null, "John", "Doe");
-        var jane = new Customer(null, "Jane", "Doe");
+        var john = new Customer(null, "John", "Doe", BigDecimal.ONE);
+        var jane = new Customer(null, "Jane", "Doe", BigDecimal.TWO);
 
         // act and verify
         customerRepository.findByLastname("Doe")
