@@ -36,3 +36,10 @@
   
 ### Spring AI Examples
 https://github.com/apappascs/spring-ai-examples
+
+### Resources about A2A / MCP 
+
+- A2A, MCP & ACP: https://medium.com/@elisowski/what-every-ai-engineer-should-know-about-a2a-mcp-acp-8335a210a742
+- A2A, MCP, Kafka and Flink: New Stack for AI Agents: https://www.linkedin.com/pulse/a2a-mcp-kafka-flink-new-stack-ai-agents-redefining-mahesh-ramichetty-rafnc/
+
+
