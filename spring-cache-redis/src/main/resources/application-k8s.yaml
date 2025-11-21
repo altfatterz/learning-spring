@@ -1,0 +1,11 @@
+spring:
+  application.name: spring-cache-redis
+
+  data:
+    redis:
+      host: my-release-valkey-cluster
+      port: 6379
+      username: default
+      password: secret
+      cluster:
+        nodes: my-release-valkey-cluster:6379

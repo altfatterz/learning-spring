@@ -1,0 +1,60 @@
+---
+images:
+  server: quay.io/infinispan/server:15.0.8.Final
+  initContainer: registry.access.redhat.com/ubi8-micro
+deploy:
+  # Create a cluster with 3 pods.
+  replicas: 3
+  # Add a user with full security authorization only until testing is done
+  security:
+    batch: "user create admin -p changeme -g admin"
+  container:
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 2Gi
+    storage:
+      ephemeral: true
+    env:
+      # This is used to calculate a default maximal heap memory (-Xmx) based on a containers restriction.
+      - name: JAVA_MAX_MEM_RATIO
+        value: "75"
+    extraJvmOpts: "-XX:+PrintCommandLineFlags -XX:+UseG1GC -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.port=5000 -Dcom.sun.management.jmxremote.rmi.port=5000 -Djava.rmi.server.hostname=127.0.0.1"
+  infinispan:
+    cacheContainer:
+      statistics: true # Global statistics
+      jmx:
+        enabled: true
+        domain: localhost
+      distributedCacheConfiguration:
+        name: distributed
+        mode: ASYNC
+        statistics: true # Cache statistics
+        # ???
+        # owners: 1
+        # by default 256 https://infinispan.org/docs/stable/titles/tuning/tuning.html
+        # segments: 256
+        encoding:
+          mediaType: "application/x-java-serialized-object"
+#          mediaType: "text/plain"
+        expiration:
+          # lastUsed + maxIdle < currentTime then Infinispan detects that the entry is expired.
+          maxIdle: 300000
+        memory:
+          maxCount: 100000
+          whenFull: REMOVE
+      replicatedCacheConfiguration:
+        name: replicated
+        mode: ASYNC
+        statistics: true # Cache statistics
+        encoding:
+          mediaType: "application/x-java-serialized-object"
+        expiration:
+          # lastUsed + maxIdle < currentTime then Infinispan detects that the entry is expired.
+          maxIdle: 300000
+        memory:
+          maxCount: 100000
+          whenFull: REMOVE

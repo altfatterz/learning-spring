@@ -1,0 +1,4 @@
+message: Hello Prod with 'file:' prefix!
+# echo -n 'message' | http post :8888/encrypt
+# echo -n 'encrypted message' | http post :8888/decrypt
+encrypted-message: '{cipher}452e2066e34510f1ebc1b2ca63e3cf32fd8d9cebad2b530c0182dda690ebcaf346f62f1fe67a322eeb759a2c54499ff5'

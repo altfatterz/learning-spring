@@ -1,0 +1,10 @@
+spring:
+  application.name: spring-cache-infinispan
+
+infinispan:
+  remote:
+    server-list: localhost:11222
+    auth-username: admin
+    auth-password: changeme
+    # otherwise 'com.github.altfatterz.springcacheinfinispan.Book' blocked by deserialization allow list.
+    java_serial_allowlist: com.github.altfatter.*

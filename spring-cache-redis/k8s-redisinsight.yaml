@@ -1,0 +1,43 @@
+# currently, there is no feature to pre-setup the db connections,
+# https://github.com/RedisInsight/RedisInsight/issues/3324
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisinsight-service
+spec:
+  ports:
+    - port: 5540
+      targetPort: 5540
+  selector:
+    app: redisinsight
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redisinsight
+  labels:
+    app: redisinsight
+spec:
+  replicas: 1 #a single replica pod
+  selector:
+    matchLabels:
+      app: redisinsight
+  template:
+    metadata:
+      labels:
+        app: redisinsight
+    spec:
+      containers:
+        - name: redisinsight
+          image: redis/redisinsight:2.56.0
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: redisinsight
+              mountPath: /data
+          ports:
+            - containerPort: 5540
+              protocol: TCP
+      volumes:
+        - name: redisinsight
+          emptyDir: { }

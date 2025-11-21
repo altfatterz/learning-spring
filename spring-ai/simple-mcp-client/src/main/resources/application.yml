@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: simple-mcp-client
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+    mcp:
+      client:
+        name: dvaas-mcp-client
+        version: 0.0.1
+        toolcallback:
+          enabled: true
+        streamable-http:
+          connections:
+            dvaas:
+              url: https://mcp.danvega.dev/mcp
+
+logging.level:
+  org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug

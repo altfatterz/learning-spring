@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-agent-sidecar-injector-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-agent-sidecar-injector-demo
+  template:
+    metadata:
+      labels:
+        app: vault-agent-sidecar-injector-demo
+    spec:
+      serviceAccountName: vault-agent-sidecar-injector-demo-sa
+      containers:
+        - name: app
+          image: vault-agent-sidecar-injector:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_R2DBC_URL
+              value: r2dbc:postgresql://my-postgresql:5432/postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-agent-sidecar-injector-demo
+spec:
+  selector:
+    app: vault-agent-sidecar-injector-demo
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

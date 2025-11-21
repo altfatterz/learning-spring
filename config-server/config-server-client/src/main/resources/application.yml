@@ -1,0 +1,24 @@
+spring:
+  application.name: config-server-client
+  config:
+    # with optional the service will start even if it cannot connect to config-server
+    import: optional:configserver:http://localhost:8888
+
+  cloud:
+    config:
+      label: green
+      # don't contact config-server
+      # enabled: false
+  profiles:
+    active: dev
+
+# making sure the /refresh endpoint is exposed with all others
+management:
+  endpoints.web.exposure.include: '*'
+
+# if the client would like to decrypt the configuration
+# set spring.cloud.config.server.encrypt.enabled to false in the config-server
+encrypt:
+  key: verysecret
+  salt: deadbeef
+

@@ -1,0 +1,20 @@
+spring:
+  sql.init.mode: always
+
+  application.name: vault-postgresql-r2dbc-demo
+
+  config.import:
+    - vault://
+
+  cloud:
+    vault:
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      # if you run it as a container set it to vault
+      # you need to adjust the db.url in vault to r2dbc:postgresql://vault:5432/postgres
+#      host: vault
+      host: localhost
+
+logging:
+  level:
+    org.springframework: DEBUG

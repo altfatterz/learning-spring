@@ -1,0 +1,44 @@
+spring:
+  application.name: config-server-vault-backend-approle
+  profiles:
+    # using the vault system backend
+    # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/vault-backend.html
+    active: vault
+  # By default, Spring Cloud Config Server uses Token based Authentication to fetch config from Vault.
+  # In order to use any authentication method other than TOKEN or the X-Config-Token header
+  # (like AppRole, LDAP, JWT, CloudFoundry, Kubernetes Auth)
+  # we need to have Spring Vault Core on the classpath so that Config Server can delegate authentication to that library.
+  cloud:
+    config:
+      server:
+        encrypt:
+          enabled: false
+        vault:
+          # Vault 0.10.0 introduced a versioned key-value backend (k/v backend version 2)
+          # that exposes a different API than earlier versions
+          # it now requires a data/ between the mount path and the actual context path and wraps secrets in a data object.
+          kv-version: 2
+          authentication: approle
+          host: localhost
+          port: 8200
+          app-role:
+            role-id: "e94f7a87-3f6f-dfca-7d29-9cdd08abfd09"
+            secret-id: "7ef8b034-7e7c-d826-9b98-f469b0cd082d"
+          # https://stackoverflow.com/questions/74982117/spring-cloud-config-hashicorp-vault-cannot-connect
+          # https://github.com/spring-cloud/spring-cloud-config/issues/1973
+          profile-separator: /
+          # to ignore the following requests:
+          # GET http://localhost:8200/v1/secret/data/application/dev
+          # GET http://localhost:8200/v1/secret/data/application
+          default-key: ""
+
+management:
+  endpoints.web.exposure.include: '*'
+
+server:
+  port: 8888
+
+logging.level:
+  org.springframework.cloud.config.server: TRACE
+  org.springframework.cloud.vault: TRACE
+  org.springframework.web.client.RestTemplate: TRACE

@@ -1,0 +1,4 @@
+message: Hello Dev with 'file:' prefix in green zone!
+# echo -n 'message' | http post :8888/encrypt
+# echo -n 'encrypted message' | http post :8888/decrypt
+encrypted-message: '{cipher}a8e4ac8d7108b85f368d51793879986c50d8ae8d86f403642a9d6db8b1dd990418cff32d103fb9101d83c4d5e00a73f6'

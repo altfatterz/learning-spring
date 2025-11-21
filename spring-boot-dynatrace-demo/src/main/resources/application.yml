@@ -1,0 +1,16 @@
+spring.application.name: spring-boot-dynatrace-demo
+
+management:
+  dynatrace.metrics.export:
+    uri: ${DYNATRACE_URI}
+    api-token: ${DYNATRACE_API_TOKEN}
+    v2:
+      metric-key-prefix: spring
+      default-dimensions:
+        service: ${spring.application.name}
+        env: ${eb.env-id}
+        instance: spring.application.instance_id
+  # This property switches it to 100% so that every request is sent to the trace backend.
+  tracing:
+    sampling.probability: 1.0
+    enabled: false

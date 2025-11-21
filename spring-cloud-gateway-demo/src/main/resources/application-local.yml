@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+gateway.uri: http://localhost:8081
+
+#fcs:
+#  db-contract-route: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: DEBUG
+#    reactor.netty: DEBUG
+#    org.springframework.cloud.gateway: TRACE
+#spring:
+#  cloud.gateway:
+#    httpclient.wiretap: true
+#    httpserver.wiretap: true
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.altfatterz</groupId>
+    <artifactId>learning-spring</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>spring-cloud-gateway-demo</module>
+        <module>spring-native-demo</module>
+        <module>spring-native-postgresql-demo</module>
+        <module>hello-cli</module>
+        <module>vault-demo</module>
+
+        <module>postgresql-r2dbc</module>
+        <module>postgresql-jdbc-secure</module>
+        <module>postgresql-r2dbc-secure</module>
+        <module>postgresql-istio-demo</module>
+
+        <module>vault-postgresql-r2dbc-demo</module>
+        <module>vault-agent-sidecar-injector</module>
+        <module>spring-reactive-redis</module>
+        <module>spring-cache-redis</module>
+        <module>funds-transfer-app</module>
+        <module>spring-cache-infinispan</module>
+
+        <module>micrometer-otlp</module>
+
+        <module>spring-boot-dynatrace-demo</module>
+
+        <module>config-server/config-server-file-backend</module>
+        <module>config-server/config-server-vault-backend</module>
+        <module>config-server/config-server-vault-backend-approle</module>
+        <module>config-server/config-server-client</module>
+
+        <module>oauth-demo/spring-authorization-server</module>
+        <module>oauth-demo/resource-server</module>
+        <module>oauth-demo/resource-server-client</module>
+
+        <module>spring-webflux-and-jdbc</module>
+        <module>spring-webflux-and-r2dbc</module>
+
+        <module>spring-boot-htmx</module>
+        <module>spring-refreshscope-demo</module>
+
+        <module>spring-cloud-loadbalancer-demo</module>
+
+        <module>spring-cloud-stream-rabbitmq-demo</module>
+
+        <!-- auth demo -->
+        <module>auth-demo/authorization-server</module>
+        <module>auth-demo/greeting-service</module>
+        <module>auth-demo/client</module>
+
+        <module>spring-ai/openai-chat-demo</module>
+        <module>spring-ai/spring-ai-ollama-demo</module>
+        <module>spring-ai/simple-mcp-server</module>
+        <module>spring-ai/docker-model-runner</module>
+        <module>spring-ai/simple-mcp-client</module>
+        <module>spring-ai/secure-mcp/secure-mcp-server-with-oauth2</module>
+        <module>spring-ai/secure-mcp/mcp-authorization-server</module>
+    </modules>
+
+
+</project>

@@ -1,0 +1,18 @@
+spring:
+  application.name: spring-cache-redis
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    redis:
+      # "dynamically created caches" means the cache is created by the @Cacheable - do not have published metrics
+      # https://medium.com/@jerome.waibel/caching-with-spring-boot-and-redis-can-be-tricky-5f99548601b9
+      enable-statistics: true
+      time-to-live: PT60S
+
+
+management:
+  endpoints.web.exposure.include: '*'

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: demo-app
+
+  config:
+    import: optional:file:/vault/secrets/database.properties
+
+  # By default, SQL database initialization is only performed when using an embedded in-memory database
+  # To always initialize an SQL database, irrespective of its type, we set it to 'always'
+  # schema.sql - can be used to create the schema for JPA-managed entities
+  # data.sql - to populate it
+  # More details: https://docs.spring.io/spring-boot/how-to/data-initialization.html
+  sql.init.mode: always
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: secret
+
+logging:
+  level:
+    io.r2dbc.postgresql.QUERY: DEBUG # for queries
+    io.r2dbc.postgresql.PARAM: DEBUG # for parameters

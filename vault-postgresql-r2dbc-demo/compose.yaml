@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: 'postgres:16'
+    environment:
+      - 'POSTGRES_DB=postgres'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432:5432'
+  vault:
+    container_name: vault
+    image: hashicorp/vault:1.13.3
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: '00000000-0000-0000-0000-000000000000'
+    ports:
+      - '8200:8200'
+  vault-init:
+    image: hashicorp/vault:1.13.3
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=00000000-0000-0000-0000-000000000000
+    depends_on:
+      - vault
+    command:
+      - "sh"
+      - "-c"
+      - "sleep 3 && vault kv put -mount=secret vault-postgresql-r2dbc-demo db.username=postgres db.password=secret db.url=r2dbc:postgresql://localhost:5432/postgres"

@@ -1,0 +1,37 @@
+spring:
+  application.name: spring-cloud-gateway-demo
+
+  cloud:
+    gateway:
+      routes:
+        - id: internal
+          uri: ${gateway.uri:http://localhost:8080}
+#          preceding route matches if the request is a GET request with path /service/backend/api/v3/get and contains a name query parameter.
+#          - GET request
+#          - PATH /service/backend/api/v3/get
+#          - contain a 'name' query parameter which value can be 'robert' or 'daniel'
+          predicates:
+            - Path=/service/backend/api/v3/get
+            - Method=GET
+            - Query=name
+          filters:
+            - StripPrefix=2
+          order: 1
+        - id: route-with-authorization
+          uri: ${gateway.uri:http://localhost:8080}
+          # allow only when the header "x-api-key: simple-key" Note the header name is case insensitive
+          predicates:
+            - Path=/service/backend/api/v3/api-key
+            - Header=x-api-key, simple-key
+          filters:
+            - StripPrefix=2
+          order: 2
+        - id: default
+          uri: http://httpbin.org:80
+          predicates:
+            - Path=/service/backend/api/v3/**
+          filters:
+            - StripPrefix=4
+            - AddRequestHeader=X-Request-red, blue
+          order: 100
+

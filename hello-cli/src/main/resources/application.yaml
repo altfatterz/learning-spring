@@ -1,0 +1,11 @@
+spring:
+  application.name: hello-cli
+  shell:
+    interactive:
+      enabled: true
+  main:
+    banner-mode: off
+
+logging:
+  level:
+    root: OFF

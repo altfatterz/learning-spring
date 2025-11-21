@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "investing-simplified-latest-videos": {
+      "command": "/Users/altfatterz/.sdkman/candidates/java/current/bin/java",
+      "args": [
+        "-Dspring.main.banner-mode=off",
+        "-Dspring.ai.mcp.server.stdio=true",
+        "-Dspring.main.web-application-type=none",
+        "-Dlogging.pattern.console=",
+        "-jar",
+        "/Users/altfatterz/projects/learning-spring/spring-ai/simple-mcp-server/target/simple-mcp-server-0.0.1-SNAPSHOT.jar"
+      ]
+    }
+  }
+}

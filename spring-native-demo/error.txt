@@ -1,0 +1,69 @@
+GraalVM Native Image: Generating 'spring-native-demo' (executable)...
+========================================================================================================================
+[1/8] Initializing...                                                                                   (13.4s @ 0.25GB)
+ Java version: 21.0.4+9-LTS, vendor version: Liberica-NIK-23.1.4-1
+ Graal compiler: optimization level: 2, target machine: x86-64-v3
+ C compiler: cc (apple, x86_64, 15.0.0)
+ Garbage collector: Serial GC (max heap size: 80% of RAM)
+ 2 user-specific feature(s):
+ - com.oracle.svm.thirdparty.gson.GsonFeature
+ - org.springframework.aot.nativex.feature.PreComputeFieldFeature
+------------------------------------------------------------------------------------------------------------------------
+Build resources:
+ - 8.64GB of memory (13.5% of 64.00GB system memory, determined at start)
+ - 16 thread(s) (100.0% of 16 available processor(s), determined at start)
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+[2/8] Performing analysis...  []                                                                        (20.3s @ 0.75GB)
+   10,744 reachable types   (76.8% of   13,996 total)
+   12,919 reachable fields  (54.4% of   23,767 total)
+   43,172 reachable methods (51.1% of   84,540 total)
+    4,114 types,   397 fields, and 5,236 methods registered for reflection
+        1 native library: -framework CoreServices
+
+Fatal error: com.oracle.graal.pointsto.util.AnalysisError$ParsingError: Error encountered while parsing com.oracle.svm.core.thread.Target_java_lang_VirtualThread.threadState(Target_java_lang_VirtualThread.java:167)
+Parsing context:
+   at com.oracle.svm.core.thread.Target_java_lang_VirtualThread.toString(Target_java_lang_VirtualThread.java:249)
+   at root method.(Unknown Source)
+
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.AnalysisError.parsingError(AnalysisError.java:149)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.createFlowsGraph(MethodTypeFlow.java:184)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.ensureFlowsGraphCreated(MethodTypeFlow.java:153)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.getOrCreateMethodFlowsGraphInfo(MethodTypeFlow.java:111)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.typestate.DefaultSpecialInvokeTypeFlow.lambda$onObservedUpdate$0(DefaultSpecialInvokeTypeFlow.java:88)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.LightImmutableCollection.forEach(LightImmutableCollection.java:90)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.typestate.DefaultSpecialInvokeTypeFlow.onObservedUpdate(DefaultSpecialInvokeTypeFlow.java:87)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.TypeFlow.update(TypeFlow.java:620)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.PointsToAnalysis$1.run(PointsToAnalysis.java:491)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.CompletionExecutor.executeCommand(CompletionExecutor.java:187)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.CompletionExecutor.lambda$executeService$0(CompletionExecutor.java:171)
+	at java.base/java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1423)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 24
+	at java.base/jdk.internal.util.Preconditions$2.apply(Preconditions.java:63)
+	at java.base/jdk.internal.util.Preconditions$2.apply(Preconditions.java:60)
+	at java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:213)
+	at java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:210)
+	at java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:98)
+	at java.base/jdk.internal.util.Preconditions.outOfBoundsCheckIndex(Preconditions.java:106)
+	at java.base/jdk.internal.util.Preconditions.checkIndex(Preconditions.java:302)
+	at java.base/java.lang.invoke.VarHandleReferences$Array.getVolatile(VarHandleReferences.java:604)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.heap.TypeData.getFieldValue(TypeData.java:83)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.heap.TypeData.readFieldValue(TypeData.java:92)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.heap.ImageHeapScanner.onFieldRead(ImageHeapScanner.java:125)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.meta.AnalysisField.registerAsRead(AnalysisField.java:287)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder.registerUsedElements(MethodTypeFlowBuilder.java:305)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder.parse(MethodTypeFlowBuilder.java:237)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder.apply(MethodTypeFlowBuilder.java:621)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.createFlowsGraph(MethodTypeFlow.java:167)
+	... 15 more
+------------------------------------------------------------------------------------------------------------------------
+                        1.3s (3.6% of total time) in 27 GCs | Peak RSS: 2.48GB | CPU load: 8.30
+
+
+

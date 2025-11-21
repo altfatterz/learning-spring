@@ -1,0 +1,59 @@
+spring:
+  application.name: spring-cloud-stream-rabbitmq-demo
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  cloud:
+    stream:
+      bindings:
+        secure-payments-out:
+          destination: payments-exchange
+          producer:
+            required-groups:
+              - dev-blue.payments-exchange.payments-queue
+              - dev-blue.payments-exchange.analytics
+          content-type: application/json
+        payments-out:
+          destination: payments-exchange
+          content-type: application/json
+          producer:
+            # these are the queues and will be bound to the payments-exchange
+            required-groups:
+              - payments-queue
+              - analytics
+        payments-in-0:
+          # destination is specified since the queue name is: <destination>.<group>
+          destination: payments-exchange
+          group:  payments-queue
+          content-type: application/json
+      rabbit:
+        default:
+          consumer.prefix: "dev."
+          producer.prefix: "dev."
+        bindings:
+          secure-payments-out:
+            producer:
+              # creates bindings to dev.payments-exchange exchange to the following queues:
+              # dev-blue.payments-exchange.analytics
+              # dev-blue.payments-exchange.payments-queue
+              bind-queue: true
+              queue-name-group-only: true
+          payments-out:
+            producer:
+              prefix: dev-blue.
+              exchangeType: topic
+              bindQueue: true
+          payments-in-0:
+            consumer:
+              # creates a 'dev-blue.DLX' exchange direct
+              # binds to it the created 'dev-blue.payments-exchange.payments-queue.dlq' queue
+              # with routing key 'dev-blue.payments-exchange.payments-queue'
+              auto-bind-dlq: true
+              prefix: dev-blue.
+
+logging.level:
+  org.springframework.amqp: trace

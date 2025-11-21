@@ -1,0 +1,17 @@
+spring:
+  application.name: postgresql-jdbc-secure
+  sql.init.mode: always
+
+  datasource:
+    username: postgres
+    password: secret
+    url: jdbc:postgresql://localhost:5432/postgres
+    hikari:
+      data-source-properties:
+        ssl: true
+        # https://jdbc.postgresql.org/documentation/ssl/
+        sslmode: verify-full
+        sslrootcert: ${user.home}/projects/learning-spring/postgresql-jdbc-secure/postgres-certs/server.crt
+
+logging.level:
+  org.springframework.jdbc.core: TRACE
