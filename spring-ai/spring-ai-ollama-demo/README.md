@@ -149,4 +149,5 @@ In the logs we see that it calls out to the WeatherService
 - https://www.youtube.com/watch?v=dffEF9ORVUg
 - https://www.youtube.com/watch?v=BzFafshQkWw
 - https://www.youtube.com/watch?v=n7IvE1VSbvI
+- the open-source LLM evaluation framework: https://deepeval.com/
 
