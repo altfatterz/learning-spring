@@ -57,7 +57,7 @@ server:
       # This allows running multiple Spring apps on localhost, and they'll each have their own cookie.
       # Otherwise, since the cookies do not take the port into account, they are confused.
       cookie:
-        name: MCP_AUTHORIZATION_SERVER_SESSIONID
+        name: MCP_AUTHORIZATION_SERVER_SESSION_ID
 
 # Logging configuration
 logging:

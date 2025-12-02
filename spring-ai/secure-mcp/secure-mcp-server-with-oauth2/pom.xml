@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>org.springaicommunity</groupId>
 			<artifactId>mcp-server-security</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.5</version>
 		</dependency>
 
 		<!-- Spring Security OAuth2 Resource Server -->
