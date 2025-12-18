@@ -1,0 +1,25 @@
+spring:
+  application.name: spring-boot-jwt-demo
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Replace this with your Identity Provider's Issuer URI
+          # Examples:
+          # Keycloak: http://localhost:8080/realms/my-realm
+          # Auth0: https://dev-xyz.us.auth0.com/
+          # The trailing slash is required by Auth0
+          issuer-uri: https://altfatterz.us.auth0.com/
+
+          # Alternatively, if issuer-uri discovery is not supported, specify the JWK Set URI directly:
+          # jwk-set-uri: https://your-idp-domain.com/.well-known/jwks.json
+
+
+auth0:
+  audience: spring-boot-jwt-demo
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE

@@ -63,6 +63,8 @@
         <module>spring-ai/simple-mcp-client</module>
         <module>spring-ai/secure-mcp/secure-mcp-server-with-oauth2</module>
         <module>spring-ai/secure-mcp/mcp-authorization-server</module>
+
+        <module>spring-boot-jwt-demo</module>
     </modules>
 
 
