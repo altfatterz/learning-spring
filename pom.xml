@@ -65,6 +65,7 @@
         <module>spring-ai/secure-mcp/mcp-authorization-server</module>
 
         <module>spring-boot-jwt-demo</module>
+        <module>spring-boot-opentelemetry-demo</module>
     </modules>
 
 

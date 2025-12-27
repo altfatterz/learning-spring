@@ -49,3 +49,19 @@ https://www.youtube.com/watch?v=FzLABAppJfM
 ### Google's Agent2Agent Protocol Enters the Linux Foundation
 
 https://www.infoq.com/news/2025/07/agent2agent-linux-foundation/
+
+
+### LLM Limitations - Swiss army lineup for taming any limitation
+    
+- `Prompt Guarding`
+  - Encode rules that constrain the model's behaviour (tone, honesty, refusal policy)
+- `Prompt Stuffing / RAG`
+  - Inject fresh, task-specific context so that the model quotes facts instead of quessing
+- `Tools / Function Calling`
+  - Let the model invoke code or APIs for real-time data, calculations or business logic
+- `MCP` 
+  - Package those tools as reusable, versioned endpoints every client can share
+
+
+
+
