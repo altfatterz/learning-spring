@@ -1,15 +1,13 @@
-package com.github.altfatterz.hellocli;
+package org.example.meetingsummarizeragent;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HelloCLIApplication {
+public class MeetingSummarizerAgentApplication {
 
     public static void main(String[] args) {
-
-        SpringApplication.run(HelloCLIApplication.class, args);
+        SpringApplication.run(MeetingSummarizerAgentApplication.class, args);
     }
-
 
 }

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: meeting-summarizer-agent
+
+  ai.openai:
+    api-key: ${OPENAI_API_KEY}
+    chat.options.model: gpt-4o
+
+embabel:
+  agent:
+    logging:
+      personality: starwars
+
+
+  logging:
+    theme=STAR_WARS:

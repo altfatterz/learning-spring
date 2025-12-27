@@ -64,6 +64,8 @@
         <module>spring-ai/secure-mcp/secure-mcp-server-with-oauth2</module>
         <module>spring-ai/secure-mcp/mcp-authorization-server</module>
 
+        <module>embabel/meeting-summarizer-agent</module>
+
         <module>spring-boot-jwt-demo</module>
         <module>spring-boot-opentelemetry-demo</module>
     </modules>
