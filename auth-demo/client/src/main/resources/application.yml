@@ -1,0 +1,48 @@
+server.port: 8082
+# we register a client as 'spring'
+spring:
+  security.oauth2.client:
+    registration:
+      spring:
+        provider: spring
+        client-id: client
+        client-secret: password
+        authorization-grant-type: authorization_code
+        client-authentication-method: client_secret_basic
+        # http://localhost:8082/login/oauth2/code/spring
+        redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        scope: user.read,openid
+    provider:
+      spring:
+        issuer-uri:  http://authorization-server:8080
+
+#  cloud:
+#    gateway:
+#      server:
+#        webflux:
+#          httpclient:
+#            wiretap: true  # Logs outgoing requests to the Auth Server
+#          httpserver:
+#            wiretap: true  # Logs incoming requests to the Gateway
+
+logging:
+  level:
+    # Gateway Logic: See how the filter is applied
+    org.springframework.cloud.gateway: DEBUG
+
+    # following calls only when the ClientApplication does not have the token
+    # No SecurityContext found in WebSession: 'org.springframework.web.server.session.InMemoryWebSessionStore'
+    # Authorization failed: Access Denied
+    # Redirecting to '/oauth2/authorization/spring'
+
+    # If WebSession is found:
+    # Found SecurityContext 'SecurityContextImpl [Authentication=OAuth2AuthenticationToken [Principal=Name: [admin],
+    # Granted Authorities: [[OIDC_USER, SCOPE_openid, SCOPE_user.read]], User Attributes: [{sub=admin, aud=[client], azp=client, auth_time=2026-01-20T13:51:58Z, iss=http://authorization-server:8080, exp=2026-01-20T14:28:42Z, iat=2026-01-20T13:58:42Z, nonce=p-DdgCFKaXctNCTvmO1FY3R9EqcWDJuiNWT7Wa2eP1E, jti=cb58672a-2072-4a00-a693-6f95ff9aadb8, sid=1igBET011_CPz5gbtS6ggmgb3--mDM7PbZuwQTaRkVQ}], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[OIDC_USER, SCOPE_openid, SCOPE_user.read]]]'
+    # in WebSession: 'org.springframework.web.server.session.InMemoryWebSessionStore'
+    org.springframework.security: DEBUG
+
+    # following calls only when the ClientApplication does not have the token
+    # POST http://authorization-server:8080/oauth2/token
+    # GET http://authorization-server:8080/oauth2/jwks
+    # GET http://authorization-server:8080/userinfo
+    reactor.netty.http.client: DEBUG

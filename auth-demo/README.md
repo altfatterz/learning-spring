@@ -13,8 +13,16 @@ Docs:
 
 ### Demo
 
-- echo "127.0.0.1 authorization-server" > /etc/hosts (avoids problems with session cookie)
-- Start `AuthorizationServerApplication (8080)` and `GreetingServiceApplication (8081)` first next the `ClientApplication (8082)`
+- avoids problems with session cookie
+
+```bash
+sudo sh -c 'echo "127.0.0.1 authorization-server" >> /etc/hosts'
+```
+ 
+- Start `AuthorizationServerApplication (8080)` 
+- Start `GreetingServiceApplication (8081)`
+- Start `ClientApplication (8082)`
+
 - Accessing the client application on `localhost:8082` the following happens:
 
 ```bash
@@ -45,3 +53,18 @@ GET http://localhost:8082/login/oauth2/code/spring?code=sLvuFXsyWuUoTS8OOXRIFAuf
 GET http://localhost:8082  
 ```
 
+### Repositories
+
+- `WebSessionStore` - spring-web
+
+ 
+- `ReactiveOAuth2AuthorizedClientService` - spring-security-oauth2-client
+  - two types:
+    - `InMemoryReactiveOAuth2AuthorizedClientService`
+    - `R2dbcReactiveOAuth2AuthorizedClientService`
+
+
+### Testing
+
+- check accessing http://localhost:8082/ after restarting `ClientApplication`               
+- check accessing http://localhost:8082/ without restarting `ClientApplication`
