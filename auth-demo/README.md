@@ -68,3 +68,48 @@ GET http://localhost:8082
 
 - check accessing http://localhost:8082/ after restarting `ClientApplication`               
 - check accessing http://localhost:8082/ without restarting `ClientApplication`
+
+
+### Buildpack
+
+```bash
+$ cd authorization-server
+$ mvn spring-boot:build-image
+# Successfully built image 'docker.io/library/authorization-server:0.0.1-SNAPSHOT'
+
+$ cd client
+$ mvn spring-boot:build-image
+# Successfully built image 'docker.io/library/client:0.0.1-SNAPSHOT'
+
+$ cd greeting-service
+$ mvn spring-boot:build-image
+# Successfully built image 'docker.io/library/greeting-service:0.0.1-SNAPSHOT'
+
+```
+
+### Kubernetes
+
+```bash
+$ k3d cluster create
+# install redis
+$ helm repo add bitnami https://charts.bitnami.com/bitnami
+$ helm install my-redis bitnami/redis
+
+# my-redis-master.default.svc.cluster.local for read/write operations (port 6379)
+# my-redis-replicas.default.svc.cluster.local for read-only operations (port 6379)
+
+# get redis passowrd
+$ export REDIS_PASSWORD=$(kubectl get secret --namespace default my-redis -o jsonpath="{.data.redis-password}" | base64 -d)
+
+# run a redis-client
+$ kubectl run redis-client --restart='Never'  --env REDIS_PASSWORD=$REDIS_PASSWORD  --image registry-1.docker.io/bitnami/redis:latest --command -- sleep infinity
+# attach to the client
+$ kubectl exec -it redis-client -- bash
+# connect to master
+$ REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h my-redis-master
+# connect o replica
+$ REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h my-redis-replicas
+
+$ info
+$ role
+```

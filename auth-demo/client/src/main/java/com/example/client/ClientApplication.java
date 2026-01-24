@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @SpringBootApplication
 public class ClientApplication {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
