@@ -53,16 +53,25 @@ GET http://localhost:8082/login/oauth2/code/spring?code=sLvuFXsyWuUoTS8OOXRIFAuf
 GET http://localhost:8082  
 ```
 
+### State
+
+- Delete SESSION cookie on the localhost:8082
+  - Inspect request in Network Tab - http://authorization-server:8080/oauth2/authorize is called
+- Restart ClientApplication
+  - Inspect request in Network Tab - http://authorization-server:8080/oauth2/authorize is called
+- Restart only AuthorizationServer
+  - normal localhost:8082 request, but later 401 failure 
+- Restart ClientApplication & AuthorizationServer
+  - Inspect request in Network Tab - you need to provide consent again 
+
 ### Repositories
 
 - `WebSessionStore` - spring-web
 
- 
 - `ReactiveOAuth2AuthorizedClientService` - spring-security-oauth2-client
   - two types:
     - `InMemoryReactiveOAuth2AuthorizedClientService`
     - `R2dbcReactiveOAuth2AuthorizedClientService`
-
 
 ### Testing
 

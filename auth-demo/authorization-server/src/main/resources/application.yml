@@ -6,7 +6,7 @@ spring:
           client-1:
             require-authorization-consent: true
             registration:
-              client-id: client
+              client-id: gateway
               client-secret: "{noop}password"
               client-authentication-methods:
                 - client_secret_basic
