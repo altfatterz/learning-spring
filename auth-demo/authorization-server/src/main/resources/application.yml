@@ -5,6 +5,9 @@ spring:
         client:
           client-1:
             require-authorization-consent: true
+            token:
+              # set it to 3 minutes, default is 5 minutes
+              access-token-time-to-live: 180s
             registration:
               client-id: gateway
               client-secret: "{noop}password"
@@ -24,4 +27,5 @@ spring:
         issuer: http://authorization-server:8080
 
 logging.level:
-  org.springframework.security: trace
+  org.springframework.security: DEBUG
+  org.springframework.security.oauth2.server.authorization: DEBUG
