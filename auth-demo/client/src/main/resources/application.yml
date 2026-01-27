@@ -12,6 +12,7 @@ spring:
         # http://localhost:8082/login/oauth2/code/spring
         redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         scope: user.read,openid
+
     provider:
       spring:
         issuer-uri:  http://authorization-server:8080
