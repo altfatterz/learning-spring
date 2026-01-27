@@ -79,21 +79,30 @@ GET http://localhost:8082
 - check accessing http://localhost:8082/ without restarting `ClientApplication`
 
 
-### Buildpack
+### Deploy to Kubernetes
 
 ```bash
 $ cd authorization-server
-$ mvn spring-boot:build-image
-# Successfully built image 'docker.io/library/authorization-server:0.0.1-SNAPSHOT'
+$ mvn clean package spring-boot:build-image
+$ k3d images import authorization-server:0.0.1-SNAPSHOT -c k3s-default
+$ docker exec k3d-k3s-default-server-0 crictl images | grep authorization-server
+$ kubectl apply -f k8s/k8s.yaml
 
 $ cd client
-$ mvn spring-boot:build-image
-# Successfully built image 'docker.io/library/client:0.0.1-SNAPSHOT'
+$ mvn clean package spring-boot:build-image
+$ k3d images import client:0.0.1-SNAPSHOT -c k3s-default
+$ docker exec k3d-k3s-default-server-0 crictl images | grep client
+$ kubectl apply -f k8s/k8s.yaml
 
 $ cd greeting-service
-$ mvn spring-boot:build-image
-# Successfully built image 'docker.io/library/greeting-service:0.0.1-SNAPSHOT'
+$ mvn clean package spring-boot:build-image
+$ k3d images import greeting-service:0.0.1-SNAPSHOT -c k3s-default
+$ docker exec k3d-k3s-default-server-0 crictl images | grep greeting-service
+$ kubectl apply -f k8s/k8s.yaml
 
+$ kubectl port-forward deploy/authorization-server 8080:8080
+$ kubectl port-forward deploy/client 8082:8080
+$ kubectl port-forward deploy/greeting-service 8081:8080
 ```
 
 ### Kubernetes

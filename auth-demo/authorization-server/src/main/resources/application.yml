@@ -28,4 +28,4 @@ spring:
 
 logging.level:
   org.springframework.security: DEBUG
-  org.springframework.security.oauth2.server.authorization: DEBUG
+  org.springframework.security.oauth2.server.authorization: TRACE

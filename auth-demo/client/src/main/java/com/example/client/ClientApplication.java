@@ -2,6 +2,7 @@ package com.example.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -25,6 +26,9 @@ public class ClientApplication {
         SpringApplication.run(ClientApplication.class, args);
     }
 
+    @Value("${services.greeting-service.uri}")
+    private String greetingServiceUri;
+
     @Bean
     RouteLocator gateway(RouteLocatorBuilder rlb) {
         return rlb
@@ -42,8 +46,8 @@ public class ClientApplication {
                                             logger.info("Relayed Token: {}", authHeader);
                                             return chain.filter(exchange);
                                         }))
-                        // Netty sends the modified request to http://localhost:8081
-                        .uri("http://localhost:8081")
+                        // Netty sends the modified request to greeting-service
+                        .uri(greetingServiceUri)
                 ).build();
     }
 }

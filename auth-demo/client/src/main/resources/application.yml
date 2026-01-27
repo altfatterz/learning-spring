@@ -16,6 +16,10 @@ spring:
       spring:
         issuer-uri:  http://authorization-server:8080
 
+services:
+  greeting-service:
+    uri: http://localhost:8081
+
 #  cloud:
 #    gateway:
 #      server:

@@ -1,0 +1,10 @@
+server.port: 8080
+spring:
+  security.oauth2.client:
+    provider:
+      spring:
+        issuer-uri: http://authorization-server:8080
+
+services:
+  greeting-service:
+    uri: http://greeting-service:8080

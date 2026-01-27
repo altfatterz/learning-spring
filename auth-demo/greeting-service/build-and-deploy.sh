@@ -1,0 +1,6 @@
+#!/bin/sh
+mvn clean package spring-boot:build-image
+k3d images import greeting-service:0.0.1-SNAPSHOT -c k3s-default
+docker exec k3d-k3s-default-server-0 crictl images | grep greeting-service
+kubectl apply -f k8s/k8s.yaml
+kubectl rollout restart deployment greeting-service
