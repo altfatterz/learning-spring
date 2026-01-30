@@ -50,11 +50,6 @@
 
         <module>spring-cloud-stream-rabbitmq-demo</module>
 
-        <!-- auth demo -->
-        <module>auth-demo/authorization-server</module>
-        <module>auth-demo/greeting-service</module>
-        <module>auth-demo/client</module>
-
         <module>spring-ai/openai-chat-demo</module>
         <module>spring-ai/google-gemini-chat-demo</module>
         <module>spring-ai/spring-ai-ollama-demo</module>
