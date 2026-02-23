@@ -1,9 +1,6 @@
 # Vault Agent Injector https://developer.hashicorp.com/vault/docs/platform/k8s/injector
 
-
-
-
-## Try locally the appliacation
+## Try locally the application
 
 ### Start PostgreSQL
 
@@ -66,19 +63,10 @@ $ kubectl port-forward svc/my-postgresql 5432:5432
 $ PGPASSWORD=secret psql -h localhost -U postgres -d postgres -p 5432
 ```
 
-### Build a docker image of the application
+### Build a docker image and import to k8s-cluster
 
 ```bash
-$ mvn spring-boot:build-image
-```
-
-### Import the image into the `k8s-cluster` cluster
-
-```bash
-$ k3d images import vault-agent-sidecar-injector:0.0.1-SNAPSHOT -c k8s-cluster 
-$ docker exec k3d-k8s-cluster-server-0 crictl images | grep vault
-
-docker.io/library/vault-agent-sidecar-injector   0.0.1-SNAPSHOT         baebde64ddd1e       364MB
+./build.sh 
 ```
 
 ### Install the app
@@ -116,9 +104,6 @@ transfer-encoding: chunked
 
 ## Using Vault Agent Sidecar Injector with Kubernetes authentication
 
-
-
-
 #### Install Vault
 
 ```bash
@@ -133,9 +118,9 @@ my-vault-0                                           1/1     Running   0        
 my-vault-agent-injector-7b6f54669c-jcmp7             1/1     Running   0          42s
 
 $ kubectl get svc | grep my-vault
-my-vault-internal                   ClusterIP   None            <none>        8200/TCP,8201/TCP   117s
-my-vault                            ClusterIP   10.43.69.16     <none>        8200/TCP,8201/TCP   117s
-my-vault-agent-injector-svc         ClusterIP   10.43.209.49    <none>        443/TCP             117s
+my-vault                            ClusterIP   10.43.95.194    <none>        8200/TCP,8201/TCP   64s
+my-vault-agent-injector-svc         ClusterIP   10.43.99.66     <none>        443/TCP             64s
+my-vault-internal                   ClusterIP   None            <none>        8200/TCP,8201/TCP   64
 
 ```
 
@@ -160,11 +145,11 @@ Initialized     true
 Sealed          false
 Total Shares    1
 Threshold       1
-Version         1.18.1
-Build Date      2024-10-29T14:21:31Z
+Version         1.21.2
+Build Date      2026-01-06T08:33:05Z
 Storage Type    inmem
-Cluster Name    vault-cluster-802c4993
-Cluster ID      0ba330b6-1d1c-a9f4-509b-52721d999e9c
+Cluster Name    vault-cluster-43602883
+Cluster ID      1a623632-3f9c-1d8e-470d-cd239034b65a
 HA Enabled      false
 
 # display information about the locally authenticated token 
@@ -199,7 +184,19 @@ secret/data/vault-agent-sidecar-injector-demo
 ======= Metadata =======
 Key                Value
 ---                -----
-created_time       2024-09-18T09:04:48.281025014Z
+created_time       2026-02-23T20:00:44.495404094Z
+custom_metadata    <nil>
+deletion_time      n/a
+destroyed          false
+version            1
+/ $ vault kv get -mount=secret vault-agent-sidecar-injector-demo
+================ Secret Path ================
+secret/data/vault-agent-sidecar-injector-demo
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2026-02-23T20:00:44.495404094Z
 custom_metadata    <nil>
 deletion_time      n/a
 destroyed          false
@@ -213,7 +210,7 @@ db_url         r2dbc:postgresql://my-postgresql:5432/postgres
 db_username    postgres
 ```
 
-You can get this information also with curl like:
+You can get this information also with http/curl like:
 
 ```bash
 $ http :8200/v1/secret/data/vault-agent-sidecar-injector-demo "X-Vault-Token: root"
@@ -352,36 +349,35 @@ $ kubectl get pods | grep vault-agent-sidecar-injector-demo
 vault-agent-sidecar-injector-demo-587b88776c-f9vnv   2/2     Running   0          81s
 # display the logs in the vault-agent container, the vault-agent manages the token lifecycle and the secret retrieval.
 $ kubectl logs $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") --container vault-agent
+==> Vault Agent started! Log data will stream in below:
 
-Vault Agent started! Log data will stream in below:
-
-2024-09-18T09:39:51.090Z [INFO]  agent.sink.file: creating file sink
-2024-09-18T09:39:51.090Z [INFO]  agent.sink.file: file sink configured: path=/home/vault/.vault-token mode=-rw-r-----
-2024-09-18T09:39:51.091Z [INFO]  agent.exec.server: starting exec server
-2024-09-18T09:39:51.091Z [INFO]  agent.exec.server: no env templates or exec config, exiting
-2024-09-18T09:39:51.091Z [INFO]  agent.sink.server: starting sink server
-2024-09-18T09:39:51.091Z [INFO]  agent.template.server: starting template server
-2024-09-18T09:39:51.091Z [INFO]  agent.auth.handler: starting auth handler
-2024-09-18T09:39:51.091Z [INFO]  agent.auth.handler: authenticating
-2024-09-18T09:39:51.091Z [INFO]  agent: (runner) creating new runner (dry: false, once: false)
-2024-09-18T09:39:51.092Z [INFO]  agent: (runner) creating watcher
 ==> Vault Agent configuration:
 
            Api Address 1: http://bufconn
                      Cgo: disabled
                Log Level: info
-                 Version: Vault v1.17.2, built 2024-07-05T15:19:12Z
-             Version Sha: 2af5655e364f697a15b1dc2db2c3f85f6ef949f2
+                 Version: Vault v1.21.2, built 2026-01-06T08:33:05Z
+             Version Sha: 781ba452d731fe2d59ccbc1b37ca7c5a18edb998
 
-2024-09-18T09:39:51.098Z [INFO]  agent.auth.handler: authentication successful, sending token to sinks
-2024-09-18T09:39:51.098Z [INFO]  agent.auth.handler: starting renewal process
-2024-09-18T09:39:51.098Z [INFO]  agent.template.server: template server received new token
-2024-09-18T09:39:51.098Z [INFO]  agent: (runner) stopping
-2024-09-18T09:39:51.098Z [INFO]  agent: (runner) creating new runner (dry: false, once: false)
-2024-09-18T09:39:51.098Z [INFO]  agent: (runner) creating watcher
-2024-09-18T09:39:51.098Z [INFO]  agent: (runner) starting
-2024-09-18T09:39:51.098Z [INFO]  agent.sink.file: token written: path=/home/vault/.vault-token
-2024-09-18T09:39:51.101Z [INFO]  agent.auth.handler: renewed auth token
+2026-02-23T20:09:33.699Z [INFO]  agent.sink.file: creating file sink
+2026-02-23T20:09:33.699Z [INFO]  agent.sink.file: file sink configured: path=/home/vault/.vault-token mode=-rw-r----- owner=100 group=1000
+2026-02-23T20:09:33.699Z [INFO]  agent.exec.server: starting exec server
+2026-02-23T20:09:33.699Z [INFO]  agent.exec.server: no env templates or exec config, exiting
+2026-02-23T20:09:33.699Z [INFO]  agent.auth.handler: starting auth handler
+2026-02-23T20:09:33.699Z [INFO]  agent.auth.handler: authenticating
+2026-02-23T20:09:33.699Z [INFO]  agent.sink.server: starting sink server
+2026-02-23T20:09:33.699Z [INFO]  agent.template.server: starting template server
+2026-02-23T20:09:33.699Z [INFO]  agent: (runner) creating new runner (dry: false, once: false)
+2026-02-23T20:09:33.699Z [INFO]  agent: (runner) creating watcher
+2026-02-23T20:09:33.701Z [INFO]  agent.auth.handler: authentication successful, sending token to sinks
+2026-02-23T20:09:33.701Z [INFO]  agent.auth.handler: starting renewal process
+2026-02-23T20:09:33.701Z [INFO]  agent.sink.file: token written: path=/home/vault/.vault-token
+2026-02-23T20:09:33.701Z [INFO]  agent.template.server: template server received new token
+2026-02-23T20:09:33.701Z [INFO]  agent: (runner) stopping
+2026-02-23T20:09:33.701Z [INFO]  agent: (runner) creating new runner (dry: false, once: false)
+2026-02-23T20:09:33.701Z [INFO]  agent: (runner) creating watcher
+2026-02-23T20:09:33.701Z [INFO]  agent: (runner) starting
+2026-02-23T20:09:33.701Z [INFO]  agent.auth.handler: renewed auth toke
 ```
 
 The `vault-agent` was authenticated with the provided service account, got a token and stored it in `/home/vault/.vault-token` folder.
@@ -389,15 +385,14 @@ This token is used to request secrets.
 
 ```bash
 $ cat /home/vault/.vault-token
-
 ```
 
 ### Display the secret written to the vault-agent-sidecar-injector-demo container.
 
 ```bash
-$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") -c app -- cat /vault/secrets/database.properties 
-data: map[spring.r2dbc.password:secret spring.r2dbc.url:r2dbc:postgresql://my-postgresql:5432/postgres spring.r2dbc.username:postgres]
-metadata: map[created_time:2024-09-18T09:04:48.281025014Z custom_metadata:<nil> deletion_time: destroyed:false version:3]      
+$ kubectl exec $(kubectl get pod -l app=vault-agent-sidecar-injector-demo -o jsonpath="{.items[0].metadata.name}") -c vault-agent -- cat /vault/secrets/database.properties 
+data: map[db_password:secret db_url:r2dbc:postgresql://my-postgresql:5432/postgres db_username:postgres]
+metadata: map[created_time:2026-02-23T20:00:44.495404094Z custom_metadata:<nil> deletion_time: destroyed:false version:1]      
 ```
 
 ### Apply a template to the injected secrets (remove the previously deployed)
