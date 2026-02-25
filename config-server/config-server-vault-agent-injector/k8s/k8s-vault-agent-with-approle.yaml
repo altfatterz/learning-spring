@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server-vault-agent-injector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server-vault-agent-injector
+  template:
+    metadata:
+      labels:
+        app: config-server-vault-agent-injector
+      annotations:
+        # enables the Vault Agent Injector service
+        vault.hashicorp.com/agent-inject: 'true'
+        # The Vault Agent will use `AppRole` authentication for retrieving secrets, by default is set to `kubernetes`
+        vault.hashicorp.com/auth-type: 'approle'
+        # Configures the authentication path, default is 'auth/kubernetes'
+        vault.hashicorp.com/auth-path: 'auth/approle'
+        # The name of a Kubernetes Secret containing your role-id and secret-id.
+        vault.hashicorp.com/agent-extra-secret: "config-server-approle-creds"
+        # Point the Agent to the mounted files
+        vault.hashicorp.com/auth-config-role-id-file-path: "/vault/custom/role-id"
+        vault.hashicorp.com/auth-config-secret-id-file-path: "/vault/custom/secret-id"
+        vault.hashicorp.com/role: "config-server-role"
+    spec:
+      containers:
+        # container used only for testing
+        - name: busybox
+          image: busybox:latest
+          command: ["/bin/sh", "-c", "sleep 3600"]
+          volumeMounts:
+            - name: service-configs
+              mountPath: /app/data/config
+
+        - name: app
+          image: config-server-vault-agent-injector:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: service-configs
+              mountPath: /app/data/config
+
+      volumes:
+        - name: service-configs
+          configMap:
+            name: service-configs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server-vault-agent-injector
+spec:
+  selector:
+    app: config-server-vault-agent-injector
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
