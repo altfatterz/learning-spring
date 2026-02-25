@@ -1,0 +1,26 @@
+spring:
+  application.name: config-server-vault-agent-injector
+  profiles:
+    # using the file system backend
+    # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/file-system-backend.html
+    active: native
+  cloud:
+    config:
+      server:
+        # makes sure that when you request `http :8888/config-server-client/dev` the `encrypted-message` is not decrypted
+        encrypt:
+          enabled: false
+        native:
+          # The default value of the searchLocations is identical to a local Spring Boot application
+          # (that is, [classpath:/, classpath:/config, file:./, file:./config])
+          search-locations:
+            - file:/app/data/config
+
+management:
+  endpoints.web.exposure.include: '*'
+
+server:
+  port: 8080
+
+logging.level:
+  org.springframework.cloud: DEBUG
