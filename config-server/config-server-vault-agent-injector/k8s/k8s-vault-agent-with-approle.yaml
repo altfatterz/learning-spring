@@ -16,22 +16,8 @@ spec:
 
         # enables the Vault Agent Injector service
         vault.hashicorp.com/agent-inject: 'true'
-        # The Vault Agent will use `AppRole` authentication for retrieving secrets, by default is set to `kubernetes`
-        vault.hashicorp.com/auth-type: 'approle'
-        # Configures the authentication path, default is 'auth/kubernetes'
-        vault.hashicorp.com/auth-path: 'auth/approle'
-
-        # The name of a Kubernetes Secret containing your role-id and secret-id.
+        vault.hashicorp.com/agent-configmap: "vault-agent-config"
         vault.hashicorp.com/agent-extra-secret: "config-server-approle-creds"
-
-        # The path /vault/custom/ is the recognized convention used by the Injector to allow users
-        # to "overlay" their own configuration files (like Role IDs or custom agent configs)
-        # without breaking the sidecar's internal directory structure.
-        vault.hashicorp.com/auth-config-role-id-file-path: "/vault/custom/role-id"
-        vault.hashicorp.com/auth-config-secret-id-file-path: "/vault/custom/secret-id"
-
-        # This tells the agent to act as a proxy and handle the token for you
-        vault.hashicorp.com/agent-cache-enable: "true"
 
     spec:
       containers:

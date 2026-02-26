@@ -160,8 +160,8 @@ $ vault policy write config-server-policy -<<EOF
 path "secret/data/config-server-client/*" {
   capabilities = [ "read" ]
 }
-path "secret/data/config-server-client" {
-  capabilities = [ "read" ]
+path "secret/metadata/config-server-client/*" {
+  capabilities = [ "list", "read" ]
 } 
 EOF
 
@@ -169,7 +169,7 @@ $ vault policy list
 $ vault policy read config-server-policy
 
 # create the config-server-role
-$ vault write auth/approle/role/config-server-role token_policies="config-server-policy" token_ttl=2h token_max_ttl=4h
+$ vault write auth/approle/role/config-server-role token_policies="config-server-policy" token_ttl=8h token_max_ttl=10h
 
 $ vault list auth/approle/role
 $ vault read auth/approle/role/config-server-role
@@ -178,14 +178,14 @@ $ vault read auth/approle/role/config-server-role
 $ vault read auth/approle/role/config-server-role/role-id
 Key        Value
 ---        -----
-role_id    6d22f117-3918-87cc-4e86-8d8c88ba18dd
+role_id    b61387a8-670f-3831-0e16-66fcc3b4ad2a
 
 # get secret-id
 $ vault write -force auth/approle/role/config-server-role/secret-id
 Key                   Value
 ---                   -----
-secret_id             24b82472-2502-3258-f294-fd0979a6d705
-secret_id_accessor    696dc5e5-e193-3ba0-6bcd-9fe03d323f4b
+secret_id             3f2fec23-824d-b965-1436-6c1bd0f4d639
+secret_id_accessor    94698724-855b-c6ac-9201-c1329153dd04
 secret_id_num_uses    0
 secret_id_ttl         0s
 
@@ -193,19 +193,19 @@ secret_id_ttl         0s
 $ kubectl exec -it my-vault-0 -- sh
 
 # login will generate a token
-$ vault write auth/approle/login role_id="6d22f117-3918-87cc-4e86-8d8c88ba18dd" secret_id="24b82472-2502-3258-f294-fd0979a6d705"
+$ vault write auth/approle/login role_id="b61387a8-670f-3831-0e16-66fcc3b4ad2a" secret_id="3f2fec23-824d-b965-1436-6c1bd0f4d639"
 Key                     Value
 ---                     -----
-token                   hvs.CAESIO_CuRQXJLkUTgnjANZlbf7NimfV6TM81T424XxPFJd4Gh4KHGh2cy5tSzVRd2Q4QnRRUWVGYUNLd0p6MDJBWFg
-token_accessor          DykdUhmxSTJ0YKsqnXu3MeJB
-token_duration          2h
+token                   hvs.CAESIK-EjlpJBEjn_lfaLQ5G49eJzB_7B9Dcm_7E7z-ip9U0Gh4KHGh2cy5jQlFHclM2TDVnRWJzWEh1OUJXbmhQM2M
+token_accessor          8fbJRhL8mE8sy9j3TvCQe1yg
+token_duration          8h
 token_renewable         true
 token_policies          ["config-server-policy" "default"]
 identity_policies       []
 policies                ["config-server-policy" "default"]
 token_meta_role_name    config-server-role
 
-$ export APP_TOKEN="hvs.CAESIO_CuRQXJLkUTgnjANZlbf7NimfV6TM81T424XxPFJd4Gh4KHGh2cy5tSzVRd2Q4QnRRUWVGYUNLd0p6MDJBWFg"
+$ export APP_TOKEN="hvs.CAESIK-EjlpJBEjn_lfaLQ5G49eJzB_7B9Dcm_7E7z-ip9U0Gh4KHGh2cy5jQlFHclM2TDVnRWJzWEh1OUJXbmhQM2M"
 $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/dev
 $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/prd
 ```
@@ -214,8 +214,8 @@ $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/prd
 
 ```bash
 $ kubectl create secret generic config-server-approle-creds \
-  --from-literal=role-id="6d22f117-3918-87cc-4e86-8d8c88ba18dd" \
-  --from-literal=secret-id="24b82472-2502-3258-f294-fd0979a6d705"
+  --from-literal=role-id="b61387a8-670f-3831-0e16-66fcc3b4ad2a" \
+  --from-literal=secret-id="3f2fec23-824d-b965-1436-6c1bd0f4d639"
 $ kubectl get secret config-server-approle-creds -o yaml
 ```
 

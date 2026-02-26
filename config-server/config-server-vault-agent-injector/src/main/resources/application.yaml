@@ -14,17 +14,14 @@ spring:
           search-locations:
             - file:/app/data/config
         vault:
-          # Vault Agent Sidecar
+          # connect to Vault Agent Sidecar
           host: 127.0.0.1
           port: 8200
           scheme: http
-          # Tell Spring to use a static token mode
-          authentication: TOKEN
-          # Pull the token from the file the Agent maintains
-          token: ${VAULT_TOKEN_FILE:/home/vault/.vault-token}
-          # This ensures the server doesn't wait for a header
           kvVersion: 2
           profile-separator: /
+          authentication: TOKEN
+          token: "placeholder-for-vault-agent"
 
 management:
   endpoints.web.exposure.include: '*'

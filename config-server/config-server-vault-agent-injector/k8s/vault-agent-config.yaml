@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config
+data:
+  # Used by the Sidecar (The Proxy)
+  config.hcl: |
+    vault {
+      address = "http://my-vault.default.svc:8200"
+    }
+    auto_auth {
+      method "approle" {
+        mount_path = "auth/approle"
+        config = {
+          role_id_file_path = "/vault/custom/role-id"
+          secret_id_file_path = "/vault/custom/secret-id"
+        }
+      }
+      sink "file" {
+        config = {
+          path = "/home/vault/.vault-token"
+        }
+      }
+    }
+    cache {
+      use_auto_auth_token = true
+    }
+    listener "tcp" {
+      address     = "127.0.0.1:8200"
+      tls_disable = true
+    
+      agent_api {
+        enable_cache = true
+        use_auto_auth_token = true
+      }
+    }
+
+  # Used by the Init Container (The Setup)
+  config-init.hcl: |
+    vault {
+      address = "http://my-vault.default.svc:8200"
+    }
+    auto_auth {
+      method "approle" {
+        mount_path = "auth/approle"
+        config = {
+          role_id_file_path = "/vault/custom/role-id"
+          secret_id_file_path = "/vault/custom/secret-id"
+        }
+      }
+      sink "file" {
+        config = {
+          path = "/home/vault/.vault-token"
+        }
+      }
+    }
+    exit_after_auth = true
