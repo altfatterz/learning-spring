@@ -17,8 +17,8 @@ spec:
         # enables the Vault Agent Injector service
         vault.hashicorp.com/agent-inject: 'true'
         vault.hashicorp.com/agent-configmap: "vault-agent-config"
+        vault.hashicorp.com/log-level: "trace"
         vault.hashicorp.com/agent-extra-secret: "config-server-approle-creds"
-
 
     spec:
       containers:

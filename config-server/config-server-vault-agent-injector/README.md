@@ -269,6 +269,7 @@ $ kubectl exec -it $(kubectl get pods -l app=config-server-vault-agent-injector 
 
 ```bash
 # notice that it returns both configurations and secrets
+# notice that if you update the secret in Vault is reflected immediately if you request it again
 $ http :8080/config-server-client/dev
 {
     "label": null,

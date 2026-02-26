@@ -7,12 +7,12 @@ data:
 
   # Used by the Sidecar (The Proxy)
   config.hcl: |
-    log_level = "trace"
-    
     vault {
       address = "http://my-vault.default.svc:8200"
     }
+    # https://developer.hashicorp.com/vault/docs/agent-and-proxy/autoauth
     auto_auth {
+      # the desired authentication method for the current environment
       method "approle" {
         mount_path = "auth/approle"
         config = {
@@ -20,6 +20,7 @@ data:
           secret_id_file_path = "/vault/custom/secret-id"
         }
       }
+      # the location where tools save tokens when the token value changes
       sink "file" {
         config = {
           path = "/home/vault/.vault-token"
@@ -27,12 +28,8 @@ data:
         type = "file"
       }
     }
-    
-    cache {
-      cache_static_secrets = true
-      static_secret_token_capability_refresh_interval = "1h"
-    }
-  
+      
+    # deprecated - https://developer.hashicorp.com/vault/docs/agent-and-proxy/agent/apiproxy
     api_proxy {
       use_auto_auth_token = "force"
     }
@@ -45,11 +42,10 @@ data:
 
   # Used by the Init Container (The Setup)
   config-init.hcl: |
-    log_level = "trace"
-    
     vault {
       address = "http://my-vault.default.svc:8200"
     }
+    
     auto_auth {
       method "approle" {
         mount_path = "auth/approle"
