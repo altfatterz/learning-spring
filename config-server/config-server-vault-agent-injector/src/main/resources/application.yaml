@@ -1,9 +1,7 @@
 spring:
   application.name: config-server-vault-agent-injector
   profiles:
-    # using the file system backend
-    # https://docs.spring.io/spring-cloud-config/reference/server/environment-repository/file-system-backend.html
-    active: native
+    active: native, vault
   cloud:
     config:
       server:
@@ -15,12 +13,30 @@ spring:
           # (that is, [classpath:/, classpath:/config, file:./, file:./config])
           search-locations:
             - file:/app/data/config
+        vault:
+          # Vault Agent Sidecar
+          host: 127.0.0.1
+          port: 8200
+          scheme: http
+          # Tell Spring to use a static token mode
+          authentication: TOKEN
+          # Pull the token from the file the Agent maintains
+          token: ${VAULT_TOKEN_FILE:/home/vault/.vault-token}
+          # This ensures the server doesn't wait for a header
+          kvVersion: 2
+          profile-separator: /
 
 management:
   endpoints.web.exposure.include: '*'
+  endpoint:
+    env:
+      show-values: always
+    configprops:
+      show-values: always
 
 server:
   port: 8080
 
 logging.level:
-  org.springframework.cloud: DEBUG
+  org.springframework.cloud: TRACE
+  org.springframework.web: TRACE

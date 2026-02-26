@@ -19,17 +19,16 @@ k3d-k3s-default-server-0   Ready    control-plane,master   34s   v1.31.5+k3s1
 ### Create the config ConfigMap
 
 ```bash
-$ cd k8s
-$ kubectl create configmap service-configs \
-  --from-file=config-server-client-dev.properties \
-  --from-file=config-server-client-prd.properties
- 
+$ kubectl create cm service-configs \
+  --from-file=k8s/config-server-client-dev.properties \
+  --from-file=k8s/config-server-client-prd.properties
+$ kubectl get cm service-configs -o yaml  
 ```
 
 ### Build a docker image and import to k8s-cluster
 
 ```bash
-./build.sh 
+$ ./build.sh 
 ```
 
 ### Install config-server
@@ -38,14 +37,14 @@ $ kubectl create configmap service-configs \
 $ kubectl apply -f k8s/k8s.yaml
 ```
 
-### Test it
+### Test that configs can be served
 
 ```bash
 $ kubectl get pods 
 NAME                                                 READY   STATUS    RESTARTS   AGE
 config-server-vault-agent-injector-bc466f96f-b5rb4   2/2     Running   0          2m18s
 
-$ kubectl exec -it config-server-vault-agent-injector-bc466f96f-b5rb4 -c busybox -- ls -l /app/data/config
+$ kubectl exec -it $(kubectl get pods -l app=config-server-vault-agent-injector -o name) -c busybox -- ls -l /app/data/config
 lrwxrwxrwx    1 root     root            42 Feb 25 11:06 config-server-client-dev.properties -> ..data/config-server-client-dev.properties
 lrwxrwxrwx    1 root     root            42 Feb 25 11:06 config-server-client-prd.properties -> ..data/config-server-client-prd.properties
 
@@ -54,7 +53,6 @@ $ kubectl port-forward svc/config-server-vault-agent-injector 8080:8080
 # in another terminal 
 $ http :8080/config-server-client/dev
 $ http :8080/config-server-client/prd
-
 ```
 
 ## Using Vault Agent Sidecar Injector
@@ -93,9 +91,7 @@ $ open http://localhost:8200/ui
 $ kubectl exec -it my-vault-0 -- sh
 $ vault --version
 Vault v1.21.2 (781ba452d731fe2d59ccbc1b37ca7c5a18edb998), built 2026-01-06T08:33:05Z
-export VAULT_ADDR="http://127.0.0.1:8200"
-export VAULT_TOKEN="root"
-
+# VAULT_ADDR is already set to http://127.0.0.1:8200
 $ vault status
 Key             Value
 ---             -----
@@ -182,29 +178,26 @@ $ vault read auth/approle/role/config-server-role
 $ vault read auth/approle/role/config-server-role/role-id
 Key        Value
 ---        -----
-role_id    f509afc2-01ed-6247-9d44-df1e1dbc0098
+role_id    6d22f117-3918-87cc-4e86-8d8c88ba18dd
 
 # get secret-id
 $ vault write -force auth/approle/role/config-server-role/secret-id
 Key                   Value
 ---                   -----
-secret_id             a533dfa1-6da2-8b7d-2361-8f4a3ddc1639
-secret_id_accessor    dae63620-b365-420b-7df1-e33433739058
+secret_id             24b82472-2502-3258-f294-fd0979a6d705
+secret_id_accessor    696dc5e5-e193-3ba0-6bcd-9fe03d323f4b
 secret_id_num_uses    0
 secret_id_ttl         0s
 
 # test login with role-id and secret-id 
 $ kubectl exec -it my-vault-0 -- sh
-$ export VAULT_ADDR="http://127.0.0.1:8200"
-$ vault kv get secret/config-server-client/dev
-URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/data/config-server-client/dev
 
 # login will generate a token
-$ vault write auth/approle/login role_id="f509afc2-01ed-6247-9d44-df1e1dbc0098" secret_id="a533dfa1-6da2-8b7d-2361-8f4a3ddc1639"
+$ vault write auth/approle/login role_id="6d22f117-3918-87cc-4e86-8d8c88ba18dd" secret_id="24b82472-2502-3258-f294-fd0979a6d705"
 Key                     Value
 ---                     -----
-token                   hvs.CAESIKyKVcg55Y7s-52ap-fD6b48Sp60xltrbQ1fQ7923uFEGh4KHGh2cy5ON1h6WU1IQlRkcmxTcXY2N3BYZU1ySUQ
-token_accessor          9w4kTCWG4aPIqytNtSVmxJ0d
+token                   hvs.CAESIO_CuRQXJLkUTgnjANZlbf7NimfV6TM81T424XxPFJd4Gh4KHGh2cy5tSzVRd2Q4QnRRUWVGYUNLd0p6MDJBWFg
+token_accessor          DykdUhmxSTJ0YKsqnXu3MeJB
 token_duration          2h
 token_renewable         true
 token_policies          ["config-server-policy" "default"]
@@ -212,7 +205,7 @@ identity_policies       []
 policies                ["config-server-policy" "default"]
 token_meta_role_name    config-server-role
 
-$ export APP_TOKEN="hvs.CAESIKyKVcg55Y7s-52ap-fD6b48Sp60xltrbQ1fQ7923uFEGh4KHGh2cy5ON1h6WU1IQlRkcmxTcXY2N3BYZU1ySUQ"
+$ export APP_TOKEN="hvs.CAESIO_CuRQXJLkUTgnjANZlbf7NimfV6TM81T424XxPFJd4Gh4KHGh2cy5tSzVRd2Q4QnRRUWVGYUNLd0p6MDJBWFg"
 $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/dev
 $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/prd
 ```
@@ -221,8 +214,9 @@ $ VAULT_TOKEN=$APP_TOKEN vault kv get secret/config-server-client/prd
 
 ```bash
 $ kubectl create secret generic config-server-approle-creds \
-  --from-literal=role-id="f509afc2-01ed-6247-9d44-df1e1dbc0098" \
-  --from-literal=secret-id="a533dfa1-6da2-8b7d-2361-8f4a3ddc1639"
+  --from-literal=role-id="6d22f117-3918-87cc-4e86-8d8c88ba18dd" \
+  --from-literal=secret-id="24b82472-2502-3258-f294-fd0979a6d705"
+$ kubectl get secret config-server-approle-creds -o yaml
 ```
 
 ### Inject the vault-agent
@@ -230,7 +224,7 @@ $ kubectl create secret generic config-server-approle-creds \
 ```bash
 $ kubectl apply -f k8s/k8s-vault-agent-with-approle.yaml
 # test connection from vault agent
-$ k exec -it config-server-vault-agent-injector-86d58c5ffd-q98ml -c vault-agent -- sh
+$ k exec -it $(kubectl get pods -l app=config-server-vault-agent-injector -o name) -c vault-agent -- sh
 # check that the role-id and secret-id were written to the disk
 $ ls -l /vault/custom
 # after login the token was written here
@@ -240,6 +234,30 @@ $ export VAULT_ADDR=http://my-vault:8200
 # test that we can query a secret
 $ vault kv get secret/config-server-client/prd
 ```
+
+### Analyse volumeMounts on vault-agent
+
+```bash
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-r6qwq
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /home/vault
+      name: home-sidecar
+    - mountPath: /vault/secrets
+      name: vault-secrets
+    - mountPath: /vault/custom
+      name: extra-secrets
+      readOnly: true
+      recursiveReadOnly: Disabled
+      
+# vault agent configuration
+$ kubectl exec -it config-server-vault-agent-injector-7c996476c5-86vpq -c vault-agent -- cat /home/vault/config.json    
+
+```
+
+
 
 ### Test from outside
 
