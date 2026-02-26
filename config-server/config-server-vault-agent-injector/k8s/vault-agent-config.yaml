@@ -5,6 +5,7 @@ metadata:
 data:
   # Used by the Sidecar (The Proxy)
   config.hcl: |
+    log_level = "debug"
     vault {
       address = "http://my-vault.default.svc:8200"
     }
@@ -37,6 +38,7 @@ data:
 
   # Used by the Init Container (The Setup)
   config-init.hcl: |
+    log_level = "debug"
     vault {
       address = "http://my-vault.default.svc:8200"
     }

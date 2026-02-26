@@ -18,10 +18,12 @@ spring:
           host: 127.0.0.1
           port: 8200
           scheme: http
-          kvVersion: 2
+          kv-version: 2
           profile-separator: /
           authentication: TOKEN
           token: "placeholder-for-vault-agent"
+          default-key: config-server-client
+          backend: secret
 
 management:
   endpoints.web.exposure.include: '*'

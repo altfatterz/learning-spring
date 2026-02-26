@@ -156,9 +156,14 @@ message    Dev Secret in Vault!
 ```bash
 # create the config-server-policy
 $ vault policy write config-server-policy -<<EOF
-# Read-only permission on secrets stored at 'secret/data/config-server-client/dev'
+path "secret/data/config-server-client" {
+  capabilities = ["read"]
+}
 path "secret/data/config-server-client/*" {
   capabilities = [ "read" ]
+}
+path "secret/metadata/config-server-client" {
+  capabilities = ["list", "read"]
 }
 path "secret/metadata/config-server-client/*" {
   capabilities = [ "list", "read" ]
@@ -252,10 +257,16 @@ $ vault kv get secret/config-server-client/prd
       readOnly: true
       recursiveReadOnly: Disabled
       
-# vault agent configuration
+# check vault agent configuration
 $ kubectl exec -it config-server-vault-agent-injector-7c996476c5-86vpq -c vault-agent -- cat /home/vault/config.json    
 
+# within the busybox it works
+$ kubectl exec -it config-server-vault-agent-injector-6f7b98cf64-2q99w -c busybox -- wget -qO- http://127.0.0.1:8200/v1/secret/data/config-server-client/dev
+{"request_id":"0c7f30f5-4357-eb96-35b5-f044cd2456ce","lease_id":"","renewable":false,"lease_duration":0,"data":{"data":{"message":"Dev Secret in Vault!"},"metadata":{"created_time":"2026-02-26T12:42:27.222908342Z","custom_metadata":null,"deletion_time":"","destroyed":false,"version":1}},"wrap_info":null,"warnings":null,"auth":null,"mount_type":"kv"}
+
 ```
+
+
 
 
 
