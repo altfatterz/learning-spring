@@ -21,9 +21,7 @@ spring:
           kv-version: 2
           profile-separator: /
           authentication: TOKEN
-          token: "placeholder-for-vault-agent"
-          default-key: config-server-client
-          backend: secret
+          token: "replaced-by-agent"
 
 management:
   endpoints.web.exposure.include: '*'

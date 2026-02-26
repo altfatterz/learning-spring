@@ -19,11 +19,12 @@ spec:
         vault.hashicorp.com/agent-configmap: "vault-agent-config"
         vault.hashicorp.com/agent-extra-secret: "config-server-approle-creds"
 
+
     spec:
       containers:
         # container used only for testing
-        - name: busybox
-          image: busybox:latest
+        - name: curl
+          image: curlimages/curl:latest
           command: ["/bin/sh", "-c", "sleep 3600"]
           volumeMounts:
             - name: service-configs

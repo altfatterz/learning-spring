@@ -3,9 +3,12 @@ kind: ConfigMap
 metadata:
   name: vault-agent-config
 data:
+  # full configuration: https://developer.hashicorp.com/vault/docs/configuration
+
   # Used by the Sidecar (The Proxy)
   config.hcl: |
-    log_level = "debug"
+    log_level = "trace"
+    
     vault {
       address = "http://my-vault.default.svc:8200"
     }
@@ -21,24 +24,29 @@ data:
         config = {
           path = "/home/vault/.vault-token"
         }
+        type = "file"
       }
     }
+    
     cache {
-      use_auto_auth_token = true
+      cache_static_secrets = true
+      static_secret_token_capability_refresh_interval = "1h"
     }
+  
+    api_proxy {
+      use_auto_auth_token = "force"
+    }
+  
     listener "tcp" {
       address     = "127.0.0.1:8200"
-      tls_disable = true
-    
-      agent_api {
-        enable_cache = true
-        use_auto_auth_token = true
-      }
+      tls_disable = true      
     }
+    exit_after_auth = false
 
   # Used by the Init Container (The Setup)
   config-init.hcl: |
-    log_level = "debug"
+    log_level = "trace"
+    
     vault {
       address = "http://my-vault.default.svc:8200"
     }

@@ -162,12 +162,13 @@ path "secret/data/config-server-client" {
 path "secret/data/config-server-client/*" {
   capabilities = [ "read" ]
 }
-path "secret/metadata/config-server-client" {
-  capabilities = ["list", "read"]
+# needed because of spring-cloud-config-server
+path "secret/data/application" {
+  capabilities = ["read"]
 }
-path "secret/metadata/config-server-client/*" {
-  capabilities = [ "list", "read" ]
-} 
+path "secret/data/application/*" {
+  capabilities = [ "read" ]
+}
 EOF
 
 $ vault policy list
@@ -258,23 +259,39 @@ $ vault kv get secret/config-server-client/prd
       recursiveReadOnly: Disabled
       
 # check vault agent configuration
-$ kubectl exec -it config-server-vault-agent-injector-7c996476c5-86vpq -c vault-agent -- cat /home/vault/config.json    
+$ kubectl exec -it $(kubectl get pods -l app=config-server-vault-agent-injector -o name) -c vault-agent -- cat /vault/configs/config-init.hcl
+$ kubectl exec -it $(kubectl get pods -l app=config-server-vault-agent-injector -o name) -c vault-agent -- cat /vault/configs/config.hcl
 
-# within the busybox it works
-$ kubectl exec -it config-server-vault-agent-injector-6f7b98cf64-2q99w -c busybox -- wget -qO- http://127.0.0.1:8200/v1/secret/data/config-server-client/dev
-{"request_id":"0c7f30f5-4357-eb96-35b5-f044cd2456ce","lease_id":"","renewable":false,"lease_duration":0,"data":{"data":{"message":"Dev Secret in Vault!"},"metadata":{"created_time":"2026-02-26T12:42:27.222908342Z","custom_metadata":null,"deletion_time":"","destroyed":false,"version":1}},"wrap_info":null,"warnings":null,"auth":null,"mount_type":"kv"}
 
 ```
-
-
-
-
 
 ### Test from outside
 
 ```bash
-# notice the config-server does not query the vault secrets
+# notice that it returns both configurations and secrets
 $ http :8080/config-server-client/dev
-$ http :8080/config-server-client/prd
+{
+    "label": null,
+    "name": "config-server-client",
+    "profiles": [
+        "dev"
+    ],
+    "propertySources": [
+        {
+            "name": "vault:config-server-client/dev",
+            "source": {
+                "message": "Dev Secret in Vault!"
+            }
+        },
+        {
+            "name": "file:/app/data/config/config-server-client-dev.properties",
+            "source": {
+                "config": "Dev Config"
+            }
+        }
+    ],
+    "state": null,
+    "version": null
+}
 ```
 
