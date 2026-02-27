@@ -1,0 +1,190 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config-vault-agent-init
+data:
+  # full configuration: https://developer.hashicorp.com/vault/docs/configuration
+
+  # Used by the Init Container
+  config-init.hcl: |
+    
+    auto_auth {
+      method "approle" {
+        mount_path = "auth/approle"
+        config = {
+          role_id_file_path = "/vault/custom/role-id"
+          secret_id_file_path = "/vault/custom/secret-id"
+        }
+      }
+      sink "file" {
+        config = {
+          path = "/home/vault/.vault-token"
+        }
+      }
+    }
+    
+    template {
+      contents = <<EOH
+      {{- with secret "secret/data/account-service/dev" -}}        
+    {{- range $k, $v := .Data.data -}}
+    {{ $k }}={{ $v }}
+    {{ end -}}
+    {{- end -}}
+    EOH
+      destination = "/vault/secrets/account-service-dev.properties"
+    }
+    
+    template {
+      contents = <<EOH
+      {{- with secret "secret/data/payment-service/dev" -}}        
+    {{- range $k, $v := .Data.data -}}
+    {{ $k }}={{ $v }}
+    {{ end -}}
+    {{- end -}}
+    EOH
+      destination = "/vault/secrets/payment-service-dev.properties"
+    }
+    
+    template {
+      contents = <<EOH
+        {{- with secret "secret/data/account-service/prd" -}}        
+    {{- range $k, $v := .Data.data -}}
+    {{ $k }}={{ $v }}
+    {{ end -}}
+    {{- end -}}
+    EOH
+      destination = "/vault/secrets/account-service-prd.properties"
+    }
+    
+    template {
+      contents = <<EOH
+        {{- with secret "secret/data/payment-service/prd" -}}        
+    {{- range $k, $v := .Data.data -}}
+    {{ $k }}={{ $v }}
+    {{ end -}}
+    {{- end -}}
+    EOH
+      destination = "/vault/secrets/payment-service-prd.properties"
+    }
+    
+    exit_after_auth = true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server-vault-agent-init
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server-vault-agent-init
+  template:
+    metadata:
+      labels:
+        app: config-server-vault-agent-init
+    spec:
+      containers:
+        # container used only for testing
+        - name: busybox
+          image: busybox:latest
+          command: ["/bin/sh", "-c", "sleep 3600"]
+          volumeMounts:
+            - name: service-configs
+              mountPath: /app/data/config
+            - name: vault-secrets
+              mountPath: /vault/secrets
+
+        - name: app
+          image: config-server-vault-agent-init:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: service-configs
+              mountPath: /app/data/config
+            - name: vault-secrets
+              mountPath: /vault/secrets
+
+      initContainers:
+        - args:
+            - touch /home/vault/.vault-token && vault agent -config=/vault/configs/config-init.hcl
+          command:
+            - /bin/sh
+            - -ec
+          env:
+            - name: VAULT_LOG_LEVEL
+              value: trace
+            - name: VAULT_LOG_FORMAT
+              value: standard
+            - name: VAULT_ADDR
+              value: http://my-vault.default.svc:8200
+            - name: VAULT_SKIP_VERIFY
+              value: "false"
+          image: hashicorp/vault:1.21.2
+          name: vault-agent-init
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 250m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 100
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/vault
+              name: home-init
+            - mountPath: /vault/secrets
+              name: vault-secrets
+            - mountPath: /vault/custom
+              name: extra-secrets
+              readOnly: true
+            - mountPath: /vault/configs
+              name: vault-config
+              readOnly: true
+
+      volumes:
+        - name: service-configs
+          configMap:
+            name: service-configs-vault-agent-init
+            defaultMode: 420
+        - name: vault-secrets
+          emptyDir:
+            # Kubernetes mounts a tmpfs (RAM-backed filesystem), Uses Container Memory Limit
+            medium: Memory
+        - name: home-init
+          emptyDir:
+            medium: Memory
+        - name: home-sidecar
+          emptyDir:
+            medium: Memory
+        - name: vault-config
+          configMap:
+            defaultMode: 420
+            name: vault-agent-config-vault-agent-init
+        - name: extra-secrets
+          secret:
+            defaultMode: 420
+            secretName: config-server-approle-creds-vault-agent-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server-vault-agent-init
+spec:
+  selector:
+    app: config-server-vault-agent-init
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

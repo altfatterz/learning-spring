@@ -32,6 +32,7 @@
         <module>spring-boot-dynatrace-demo</module>
 
         <module>config-server/config-server-vault-agent-injector</module>
+        <module>config-server/config-server-vault-agent-init</module>
         <module>config-server/config-server-file-backend</module>
         <module>config-server/config-server-vault-backend</module>
         <module>config-server/config-server-vault-backend-approle</module>
