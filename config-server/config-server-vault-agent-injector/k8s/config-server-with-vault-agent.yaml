@@ -1,0 +1,240 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    vault.hashicorp.com/agent-configmap: vault-agent-config
+    vault.hashicorp.com/agent-extra-secret: config-server-approle-creds
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/agent-inject-status: injected
+    vault.hashicorp.com/log-level: trace
+  generateName: config-server-vault-agent-injector-89b894674-
+  labels:
+    app: config-server-vault-agent-injector
+  name: config-server-vault-agent-injector-89b894674-vhbqc
+spec:
+  containers:
+  - command:
+    - /bin/sh
+    - -c
+    - sleep 3600
+    image: curlimages/curl:latest
+    imagePullPolicy: Always
+    name: curl
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /app/data/config
+      name: service-configs
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-tx7jg
+      readOnly: true
+    - mountPath: /vault/secrets
+      name: vault-secrets
+  - image: config-server-vault-agent-injector:0.0.1-SNAPSHOT
+    imagePullPolicy: IfNotPresent
+    name: app
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /app/data/config
+      name: service-configs
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-tx7jg
+      readOnly: true
+    - mountPath: /vault/secrets
+      name: vault-secrets
+  - args:
+    - touch /home/vault/.vault-token && vault agent -config=/vault/configs/config.hcl
+    command:
+    - /bin/sh
+    - -ec
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: HOST_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.hostIP
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: VAULT_LOG_LEVEL
+      value: trace
+    - name: VAULT_LOG_FORMAT
+      value: standard
+    - name: VAULT_ADDR
+      value: http://my-vault.default.svc:8200
+    - name: VAULT_SKIP_VERIFY
+      value: "false"
+    image: hashicorp/vault:1.21.2
+    imagePullPolicy: IfNotPresent
+    lifecycle: {}
+    name: vault-agent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 250m
+        memory: 64Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1000
+      runAsNonRoot: true
+      runAsUser: 100
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-tx7jg
+      readOnly: true
+    - mountPath: /home/vault
+      name: home-sidecar
+    - mountPath: /vault/secrets
+      name: vault-secrets
+    - mountPath: /vault/custom
+      name: extra-secrets
+      readOnly: true
+    - mountPath: /vault/configs
+      name: vault-config
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  initContainers:
+  - args:
+    - touch /home/vault/.vault-token && vault agent -config=/vault/configs/config-init.hcl
+    command:
+    - /bin/sh
+    - -ec
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: HOST_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.hostIP
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: VAULT_LOG_LEVEL
+      value: trace
+    - name: VAULT_LOG_FORMAT
+      value: standard
+    - name: VAULT_ADDR
+      value: http://my-vault.default.svc:8200
+    - name: VAULT_SKIP_VERIFY
+      value: "false"
+    image: hashicorp/vault:1.21.2
+    imagePullPolicy: IfNotPresent
+    name: vault-agent-init
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 250m
+        memory: 64Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1000
+      runAsNonRoot: true
+      runAsUser: 100
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/vault
+      name: home-init
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-tx7jg
+      readOnly: true
+    - mountPath: /vault/secrets
+      name: vault-secrets
+    - mountPath: /vault/custom
+      name: extra-secrets
+      readOnly: true
+    - mountPath: /vault/configs
+      name: vault-config
+      readOnly: true
+  nodeName: k3d-k3s-default-server-0
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - configMap:
+      defaultMode: 420
+      name: service-configs
+    name: service-configs
+  - name: kube-api-access-tx7jg
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+  - emptyDir:
+      medium: Memory
+    name: home-init
+  - emptyDir:
+      medium: Memory
+    name: home-sidecar
+  - emptyDir:
+      medium: Memory
+    name: vault-secrets
+  - configMap:
+      defaultMode: 420
+      name: vault-agent-config
+    name: vault-config
+  - name: extra-secrets
+    secret:
+      defaultMode: 420
+      secretName: config-server-approle-creds
